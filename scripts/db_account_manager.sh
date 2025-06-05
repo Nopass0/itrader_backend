@@ -28,7 +28,19 @@ check_psql() {
 list_gate_accounts() {
     echo -e "\n${CYAN}=== Gate.io Accounts ===${NC}"
     
-    psql "$DB_URL" -t -c "
+    # Check if there are any accounts
+    count=$(psql "$DB_URL" -t -c "SELECT COUNT(*) FROM gate_accounts" | xargs)
+    
+    if [ "$count" -eq 0 ]; then
+        echo -e "${YELLOW}  No Gate.io accounts found${NC}"
+        return
+    fi
+    
+    # Print header
+    echo -e "${BLUE}   ID | Email                          | Balance (RUB)  | Status   | Last Auth${NC}"
+    echo "  ----+--------------------------------+----------------+----------+------------------"
+    
+    psql "$DB_URL" -t -A -F'|' -c "
         SELECT 
             id, 
             email, 
@@ -41,12 +53,19 @@ list_gate_accounts() {
         FROM gate_accounts 
         ORDER BY id
     " | while IFS='|' read -r id email balance status last_auth; do
-        printf "  %3s | %-30s | %12.2f RUB | %-8s | %s\n" \
-            "$(echo $id | xargs)" \
-            "$(echo $email | xargs)" \
-            "$(echo $balance | xargs)" \
-            "$(echo $status | xargs)" \
-            "$(echo $last_auth | xargs)"
+        # Handle empty fields
+        id=${id:-0}
+        email=${email:-"N/A"}
+        balance=${balance:-0}
+        status=${status:-"unknown"}
+        last_auth=${last_auth:-"Never"}
+        
+        printf "  %3d | %-30s | %14.2f | %-8s | %s\n" \
+            "$id" \
+            "$email" \
+            "$balance" \
+            "$status" \
+            "$last_auth"
     done
 }
 
@@ -54,7 +73,19 @@ list_gate_accounts() {
 list_bybit_accounts() {
     echo -e "\n${CYAN}=== Bybit Accounts ===${NC}"
     
-    psql "$DB_URL" -t -c "
+    # Check if there are any accounts
+    count=$(psql "$DB_URL" -t -c "SELECT COUNT(*) FROM bybit_accounts" | xargs)
+    
+    if [ "$count" -eq 0 ]; then
+        echo -e "${YELLOW}  No Bybit accounts found${NC}"
+        return
+    fi
+    
+    # Print header
+    echo -e "${BLUE}   ID | Account Name         | API Key       | Ads | Status     | Last Used${NC}"
+    echo "  ----+----------------------+---------------+-----+------------+------------------"
+    
+    psql "$DB_URL" -t -A -F'|' -c "
         SELECT 
             id, 
             account_name, 
@@ -68,13 +99,21 @@ list_bybit_accounts() {
         FROM bybit_accounts 
         ORDER BY id
     " | while IFS='|' read -r id account_name api_key active_ads status last_used; do
-        printf "  %3s | %-20s | %-13s | Ads: %2s | %-10s | %s\n" \
-            "$(echo $id | xargs)" \
-            "$(echo $account_name | xargs)" \
-            "$(echo $api_key | xargs)" \
-            "$(echo $active_ads | xargs)" \
-            "$(echo $status | xargs)" \
-            "$(echo $last_used | xargs)"
+        # Handle empty fields
+        id=${id:-0}
+        account_name=${account_name:-"N/A"}
+        api_key=${api_key:-"N/A"}
+        active_ads=${active_ads:-0}
+        status=${status:-"unknown"}
+        last_used=${last_used:-"Never"}
+        
+        printf "  %3d | %-20s | %-13s | %3d | %-10s | %s\n" \
+            "$id" \
+            "$account_name" \
+            "$api_key" \
+            "$active_ads" \
+            "$status" \
+            "$last_used"
     done
 }
 
@@ -94,8 +133,11 @@ add_gate_account() {
         RETURNING id;
     " 2>&1)
     
-    if [[ $result =~ ^[0-9]+$ ]]; then
-        echo -e "${GREEN}✅ Gate.io account added successfully (ID: $result)${NC}"
+    # Extract just the ID from the result (remove whitespace)
+    id=$(echo "$result" | grep -E '^\s*[0-9]+\s*$' | tr -d ' ')
+    
+    if [ -n "$id" ]; then
+        echo -e "${GREEN}✅ Gate.io account added successfully (ID: $id)${NC}"
     else
         echo -e "${RED}❌ Failed to add account: $result${NC}"
     fi
@@ -116,8 +158,11 @@ add_bybit_account() {
         RETURNING id;
     " 2>&1)
     
-    if [[ $result =~ ^[0-9]+$ ]]; then
-        echo -e "${GREEN}✅ Bybit account added successfully (ID: $result)${NC}"
+    # Extract just the ID from the result (remove whitespace)
+    id=$(echo "$result" | grep -E '^\s*[0-9]+\s*$' | tr -d ' ')
+    
+    if [ -n "$id" ]; then
+        echo -e "${GREEN}✅ Bybit account added successfully (ID: $id)${NC}"
     else
         echo -e "${RED}❌ Failed to add account: $result${NC}"
     fi
