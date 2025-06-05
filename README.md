@@ -12,8 +12,16 @@ cargo build --release
 cp .env.example .env
 # Edit .env with your database and Redis URLs
 
+# Configure accounts (interactive menu)
+./run.sh --settings
+
+# Or import accounts from CSV
+./scripts/batch_import_accounts.sh gate data/gate_accounts.csv
+./scripts/batch_import_accounts.sh bybit data/bybit_accounts.csv
+
 # Run the application
-./run.sh
+./run.sh          # Manual mode
+./run.sh --auto   # Automatic mode
 
 # Run tests
 ./test.sh
@@ -29,7 +37,10 @@ cp .env.example .env
 - **WebSocket API**: Real-time monitoring and control
 
 ### Key Features
-- Auto-accepts pending transactions (status 4)
+- **Multi-Account Support**: Manage multiple Gate.io and Bybit accounts
+- **Auto-accepts pending transactions** (status 4)
+- **Interactive Account Manager**: Add/edit/delete accounts via menu
+- **Batch Import**: Import accounts from CSV files
 - Mock rate calculation (103.50 RUB/USDT)
 - OCR receipt validation
 - No encryption - credentials stored in plain JSON
@@ -228,21 +239,50 @@ RUST_LOG=info
 ```
 
 ### Account Configuration
+
+#### Interactive Account Manager
+```bash
+./run.sh --settings
+```
+
+Features:
+- Add/Edit/Delete Gate.io accounts
+- Add/Edit/Delete Bybit accounts  
+- Import/Export configurations
+- View account statistics
+
+#### Manual Configuration
 Edit `data/accounts.json`:
 ```json
 {
   "gate_accounts": [{
+    "id": 1,
     "email": "user@example.com",
     "password": "password",
-    "balance": 10000000.0
+    "balance": 10000000.0,
+    "status": "active"
   }],
   "bybit_accounts": [{
+    "id": 1,
     "account_name": "user",
     "api_key": "key",
-    "api_secret": "secret"
+    "api_secret": "secret",
+    "active_ads": 0,
+    "status": "available"
   }]
 }
 ```
+
+#### Batch Import
+```bash
+# Import Gate.io accounts from CSV
+./scripts/batch_import_accounts.sh gate accounts.csv
+
+# Import Bybit accounts from CSV  
+./scripts/batch_import_accounts.sh bybit bybit.csv
+```
+
+See [ACCOUNT_MANAGEMENT.md](./ACCOUNT_MANAGEMENT.md) for detailed documentation.
 
 ## Troubleshooting
 

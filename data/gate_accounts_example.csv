@@ -1,0 +1,6 @@
+email,password,balance
+trader1@example.com,secure_pass_1,10000000
+trader2@example.com,secure_pass_2,15000000
+trader3@example.com,secure_pass_3,20000000
+trader4@example.com,secure_pass_4,12000000
+trader5@example.com,secure_pass_5,18000000
