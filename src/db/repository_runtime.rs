@@ -79,7 +79,7 @@ impl Repository {
             CREATE TABLE IF NOT EXISTS gate_accounts (
                 id SERIAL PRIMARY KEY,
                 email VARCHAR(255) UNIQUE NOT NULL,
-                password_encrypted TEXT NOT NULL,
+                password TEXT NOT NULL,
                 cookies TEXT,
                 last_auth TIMESTAMP WITH TIME ZONE,
                 balance DECIMAL(20, 8) DEFAULT 0,
@@ -99,7 +99,7 @@ impl Repository {
                 id SERIAL PRIMARY KEY,
                 account_name VARCHAR(255) UNIQUE NOT NULL,
                 api_key TEXT NOT NULL,
-                api_secret_encrypted TEXT NOT NULL,
+                api_secret TEXT NOT NULL,
                 active_ads INTEGER DEFAULT 0,
                 status VARCHAR(50) DEFAULT 'active',
                 last_used TIMESTAMP WITH TIME ZONE,
@@ -201,7 +201,7 @@ impl Repository {
         let accounts = rows.into_iter().map(|row| GateAccount {
             id: row.get("id"),
             email: row.get("email"),
-            password_encrypted: row.get("password_encrypted"),
+            password: row.get("password"),
             cookies: row.get("cookies"),
             last_auth: row.get("last_auth"),
             balance: row.get("balance"),
@@ -221,7 +221,7 @@ impl Repository {
         let accounts = rows.into_iter().map(|row| GateAccount {
             id: row.get("id"),
             email: row.get("email"),
-            password_encrypted: row.get("password_encrypted"),
+            password: row.get("password"),
             cookies: row.get("cookies"),
             last_auth: row.get("last_auth"),
             balance: row.get("balance"),
@@ -287,9 +287,10 @@ impl Repository {
             id: row.get("id"),
             account_name: row.get("account_name"),
             api_key: row.get("api_key"),
-            api_secret_encrypted: row.get("api_secret_encrypted"),
+            api_secret: row.get("api_secret"),
             active_ads: row.get("active_ads"),
             status: row.get("status"),
+            last_used: row.get("last_used"),
             created_at: row.get("created_at"),
             updated_at: row.get("updated_at"),
         }))
@@ -634,7 +635,7 @@ impl Repository {
         Ok(row.map(|row| GateAccount {
             id: row.get("id"),
             email: row.get("email"),
-            password_encrypted: row.get("password_encrypted"),
+            password: row.get("password"),
             cookies: row.get("cookies"),
             last_auth: row.get("last_auth"),
             balance: row.get("balance"),

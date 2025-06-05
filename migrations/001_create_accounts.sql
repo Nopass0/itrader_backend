@@ -2,7 +2,7 @@
 CREATE TABLE gate_accounts (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password_encrypted TEXT NOT NULL,
+    password TEXT NOT NULL,
     cookies JSONB,
     last_auth TIMESTAMP WITH TIME ZONE,
     balance DECIMAL(20, 2) DEFAULT 0,
@@ -16,7 +16,7 @@ CREATE TABLE bybit_accounts (
     id SERIAL PRIMARY KEY,
     account_name VARCHAR(255) UNIQUE NOT NULL,
     api_key VARCHAR(255) NOT NULL,
-    api_secret_encrypted TEXT NOT NULL,
+    api_secret TEXT NOT NULL,
     active_ads INTEGER DEFAULT 0,
     status VARCHAR(50) DEFAULT 'available',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

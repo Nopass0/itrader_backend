@@ -9,7 +9,7 @@ use crate::utils::error::{AppError, Result};
 pub struct GateAccount {
     pub id: i32,
     pub email: String,
-    pub password_encrypted: String,
+    pub password: String,
     pub balance: f64,
     pub status: String,
     pub last_auth: Option<DateTime<Utc>>,
@@ -22,7 +22,7 @@ pub struct BybitAccount {
     pub id: i32,
     pub account_name: String,
     pub api_key: String,
-    pub api_secret_encrypted: String,
+    pub api_secret: String,
     pub active_ads: i32,
     pub status: String,
     pub last_used: Option<DateTime<Utc>>,
@@ -55,7 +55,7 @@ impl DbAccountManager {
 
         let result = sqlx::query!(
             r#"
-            INSERT INTO gate_accounts (email, password_encrypted, balance, status)
+            INSERT INTO gate_accounts (email, password, balance, status)
             VALUES ($1, $2, $3, $4)
             RETURNING id
             "#,
@@ -74,7 +74,7 @@ impl DbAccountManager {
         let account = sqlx::query_as!(
             GateAccount,
             r#"
-            SELECT id, email, password_encrypted, balance, status, 
+            SELECT id, email, password, balance, status, 
                    last_auth, created_at, updated_at
             FROM gate_accounts
             WHERE id = $1
@@ -91,7 +91,7 @@ impl DbAccountManager {
         let account = sqlx::query_as!(
             GateAccount,
             r#"
-            SELECT id, email, password_encrypted, balance, status,
+            SELECT id, email, password, balance, status,
                    last_auth, created_at, updated_at
             FROM gate_accounts
             WHERE email = $1
@@ -148,7 +148,7 @@ impl DbAccountManager {
         let accounts = sqlx::query_as!(
             GateAccount,
             r#"
-            SELECT id, email, password_encrypted, balance, status,
+            SELECT id, email, password, balance, status,
                    last_auth, created_at, updated_at
             FROM gate_accounts
             WHERE status = 'active'
@@ -176,7 +176,7 @@ impl DbAccountManager {
 
         let result = sqlx::query!(
             r#"
-            INSERT INTO bybit_accounts (account_name, api_key, api_secret_encrypted, active_ads, status)
+            INSERT INTO bybit_accounts (account_name, api_key, api_secret, active_ads, status)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING id
             "#,
@@ -196,7 +196,7 @@ impl DbAccountManager {
         let account = sqlx::query_as!(
             BybitAccount,
             r#"
-            SELECT id, account_name, api_key, api_secret_encrypted, active_ads,
+            SELECT id, account_name, api_key, api_secret, active_ads,
                    status, last_used, created_at, updated_at
             FROM bybit_accounts
             WHERE id = $1
@@ -213,7 +213,7 @@ impl DbAccountManager {
         let account = sqlx::query_as!(
             BybitAccount,
             r#"
-            SELECT id, account_name, api_key, api_secret_encrypted, active_ads,
+            SELECT id, account_name, api_key, api_secret, active_ads,
                    status, last_used, created_at, updated_at
             FROM bybit_accounts
             WHERE status = 'available' AND active_ads < 4
@@ -260,7 +260,7 @@ impl DbAccountManager {
         let accounts = sqlx::query_as!(
             BybitAccount,
             r#"
-            SELECT id, account_name, api_key, api_secret_encrypted, active_ads,
+            SELECT id, account_name, api_key, api_secret, active_ads,
                    status, last_used, created_at, updated_at
             FROM bybit_accounts
             ORDER BY id

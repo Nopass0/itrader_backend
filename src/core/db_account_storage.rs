@@ -10,7 +10,7 @@ use crate::utils::error::{AppError, Result};
 pub struct GateCookie {
     pub id: String,
     pub email: String,
-    pub password_encrypted: String,
+    pub password: String,
     pub status: String,
     pub cookies: Option<serde_json::Value>,
     pub last_auth: Option<DateTime<Utc>>,
@@ -48,7 +48,7 @@ impl DbAccountStorage {
 
         sqlx::query!(
             r#"
-            INSERT INTO gate_cookies (id, email, password_encrypted, status, balance)
+            INSERT INTO gate_cookies (id, email, password, status, balance)
             VALUES ($1, $2, $3, $4, $5)
             "#,
             id,
@@ -66,7 +66,7 @@ impl DbAccountStorage {
     pub async fn load_gate_account(&self, id: &str) -> Result<Option<(String, String, Option<serde_json::Value>)>> {
         let cookie = sqlx::query!(
             r#"
-            SELECT email, password_encrypted, cookies
+            SELECT email, password, cookies
             FROM gate_cookies
             WHERE id = $1
             "#,
@@ -76,7 +76,7 @@ impl DbAccountStorage {
         .await?;
 
         match cookie {
-            Some(c) => Ok(Some((c.email, c.password_encrypted, c.cookies))),
+            Some(c) => Ok(Some((c.email, c.password, c.cookies))),
             None => Ok(None),
         }
     }
@@ -126,7 +126,7 @@ impl DbAccountStorage {
         let cookies = sqlx::query_as!(
             GateCookie,
             r#"
-            SELECT id, email, password_encrypted, status, cookies,
+            SELECT id, email, password, status, cookies,
                    last_auth, balance, created_at, updated_at
             FROM gate_cookies
             ORDER BY created_at DESC

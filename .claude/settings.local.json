@@ -108,7 +108,21 @@
       "Bash(cat:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(./scripts/migrate_json_to_db.sh:*)"
+      "Bash(./scripts/migrate_json_to_db.sh:*)",
+      "Bash(PGPASSWORD=root psql -U postgres -h localhost -d itrader_test -f migrations/001_create_accounts.sql)",
+      "Bash(PGPASSWORD=root psql -U postgres -h localhost -d itrader_test -f migrations/002_create_orders.sql)",
+      "Bash(PGPASSWORD=root psql -U postgres -h localhost -d itrader_test -f migrations/003_create_pools.sql)",
+      "Bash(PGPASSWORD=root psql -U postgres -h localhost -d itrader_test -f migrations/004_create_settings_and_sessions.sql)",
+      "Bash(uv venv:*)",
+      "Bash(uv pip install:*)",
+      "Bash(.venv/bin/python:*)",
+      "Bash(PGPASSWORD=root psql -U postgres -d itrader_test -c \"\\d bybit_accounts\")",
+      "Bash(PGPASSWORD=root psql -U postgres -d itrader_test -f /home/user/projects/itrader_backend/migrations/009_rename_encrypted_fields.sql)",
+      "Bash(PGPASSWORD=root psql -U postgres -d itrader_test -c \"\\d gate_accounts\")",
+      "Bash(PGPASSWORD=root psql -U postgres -d itrader -f /home/user/projects/itrader_backend/migrations/009_rename_encrypted_fields.sql)",
+      "Bash(cargo:*)",
+      "Bash(PGPASSWORD=root psql:*)",
+      "Bash(./install.sh:*)"
     ],
     "deny": []
   },

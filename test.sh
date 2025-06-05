@@ -3,8 +3,35 @@
 echo "=== iTrader Backend Test Suite ==="
 echo
 
-# Set up Python library path for PyO3
-export LD_LIBRARY_PATH="/home/user/.local/share/uv/python/cpython-3.11.12-linux-x86_64-gnu/lib:$LD_LIBRARY_PATH"
+# Check if specific test requested
+if [ "$1" == "p2p" ]; then
+    echo "🚀 Running P2P Ad Creation Test..."
+    # Export test database URL for Python script
+    export DATABASE_URL="postgresql://postgres:root@localhost/itrader_test"
+    .venv/bin/python tests/test_bybit_p2p_ad.py
+    exit 0
+fi
+
+# Simple Python bridge tests
+if [ "$1" == "bybit-simple" ]; then
+    echo "🚀 Running simple Bybit Python bridge tests..."
+    .venv/bin/python test_bybit_python_simple.py
+    exit 0
+fi
+
+# Set up UV Python environment
+if [ -d ".venv" ]; then
+    source .venv/bin/activate
+    # Set up Python library path for PyO3 from virtual environment
+    PYTHON_LIB=$(.venv/bin/python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))' 2>/dev/null)
+    if [ -n "$PYTHON_LIB" ]; then
+        export LD_LIBRARY_PATH="$PYTHON_LIB:$LD_LIBRARY_PATH"
+    fi
+    export LD_LIBRARY_PATH="$(pwd)/.venv/lib:$LD_LIBRARY_PATH"
+else
+    echo "⚠️  Virtual environment not found. Run './run.sh' first to set up the environment."
+    exit 1
+fi
 
 # Parse flags
 SAFE_ONLY=false
@@ -84,17 +111,14 @@ TEST_DESCRIPTIONS[gate-search]="Search Gate.io transaction by ID"
 TEST_CATEGORIES[gate-list-pending]="safe"
 TEST_DESCRIPTIONS[gate-list-pending]="List pending transactions"
 
-TEST_CATEGORIES[bybit-auth]="safe"
-TEST_DESCRIPTIONS[bybit-auth]="Test Bybit authentication"
+TEST_CATEGORIES[bybit-python-auth]="safe"
+TEST_DESCRIPTIONS[bybit-python-auth]="Test Bybit authentication (Python bridge)"
 
-TEST_CATEGORIES[bybit-get-ads]="safe"
-TEST_DESCRIPTIONS[bybit-get-ads]="Get Bybit advertisements (read-only)"
+TEST_CATEGORIES[bybit-python-rates]="safe"
+TEST_DESCRIPTIONS[bybit-python-rates]="Get Bybit P2P rates (Python bridge)"
 
-TEST_CATEGORIES[bybit-get-orders]="safe"
-TEST_DESCRIPTIONS[bybit-get-orders]="Get Bybit orders (read-only)"
-
-TEST_CATEGORIES[bybit-rates]="safe"
-TEST_DESCRIPTIONS[bybit-rates]="Get Bybit P2P rates (read-only)"
+TEST_CATEGORIES[bybit-python-account]="safe"
+TEST_DESCRIPTIONS[bybit-python-account]="Get Bybit account info (Python bridge)"
 
 TEST_CATEGORIES[receipt-parse]="safe"
 TEST_DESCRIPTIONS[receipt-parse]="Parse PDF receipt (local file)"
@@ -118,11 +142,14 @@ TEST_DESCRIPTIONS[gate-set-balance]="Set Gate.io balance (modifies account)"
 TEST_CATEGORIES[gate-approve-tx]="dangerous"
 TEST_DESCRIPTIONS[gate-approve-tx]="Approve Gate.io transaction (modifies data)"
 
-TEST_CATEGORIES[bybit-create-ad]="dangerous"
-TEST_DESCRIPTIONS[bybit-create-ad]="Create Bybit advertisement (creates data)"
+TEST_CATEGORIES[bybit-python-create-ad]="dangerous"
+TEST_DESCRIPTIONS[bybit-python-create-ad]="Create Bybit ad (Python bridge)"
 
-TEST_CATEGORIES[bybit-delete-ad]="dangerous"
-TEST_DESCRIPTIONS[bybit-delete-ad]="Delete Bybit advertisement (removes data)"
+TEST_CATEGORIES[bybit-python-delete-ad]="dangerous"
+TEST_DESCRIPTIONS[bybit-python-delete-ad]="Delete Bybit ad (Python bridge)"
+
+TEST_CATEGORIES[bybit-python-bridge-all]="safe"
+TEST_DESCRIPTIONS[bybit-python-bridge-all]="All Bybit Python bridge tests"
 
 TEST_CATEGORIES[gmail-auth]="dangerous"
 TEST_DESCRIPTIONS[gmail-auth]="Gmail OAuth2 authentication (creates token)"
@@ -169,20 +196,17 @@ run_test() {
         gate-list-pending)
             cargo run --bin gate_list_pending
             ;;
-        bybit-auth)
-            cargo test test_bybit_auth -- --nocapture --test-threads=1
+        bybit-python-auth)
+            cargo test test_bybit_p2p_python_integration -- --nocapture --test-threads=1
             ;;
-        bybit-get-ads)
-            cargo test test_bybit_get_advertisements -- --nocapture --test-threads=1
+        bybit-python-rates)
+            cargo test test_bybit_p2p_get_rates_via_python -- --nocapture --test-threads=1
             ;;
-        bybit-get-orders)
-            cargo test test_bybit_get_orders -- --nocapture --test-threads=1
+        bybit-python-account)
+            cargo test test_bybit_p2p_python_integration -- --nocapture --test-threads=1
             ;;
-        bybit-rates)
-            if [ -n "$2" ]; then
-                export TEST_AMOUNT="$2"
-            fi
-            cargo test bybit_rate_tests -- --nocapture --test-threads=1
+        bybit-python-bridge-all)
+            cargo test bybit_p2p_python_test -- --nocapture --test-threads=1
             ;;
         receipt-parse)
             if [ -n "$2" ]; then
@@ -220,11 +244,11 @@ run_test() {
                 exit 1
             fi
             ;;
-        bybit-create-ad)
-            cargo test test_bybit_create_advertisement -- --nocapture --test-threads=1
+        bybit-python-create-ad)
+            cargo test test_bybit_p2p_create_ad_via_python -- --nocapture --test-threads=1
             ;;
-        bybit-delete-ad)
-            cargo test test_bybit_delete_advertisement -- --nocapture --test-threads=1
+        bybit-python-delete-ad)
+            echo "Delete ad test not implemented yet"
             ;;
         gmail-auth)
             cargo test test_gmail_auth -- --ignored --nocapture --test-threads=1

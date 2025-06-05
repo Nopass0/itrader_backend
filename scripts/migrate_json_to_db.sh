@@ -56,7 +56,7 @@ migrate_accounts() {
             # Check if account exists
             exists=$(psql "$DB_URL" -t -c "SELECT COUNT(*) FROM gate_accounts WHERE email='$email'" | xargs)
             if [ "$exists" -eq 0 ]; then
-                exec_sql "INSERT INTO gate_accounts (email, password_encrypted, balance, status, created_at, updated_at) VALUES ('$email', '$password', $balance, '$status', '$created_at', '$updated_at')"
+                exec_sql "INSERT INTO gate_accounts (email, password, balance, status, created_at, updated_at) VALUES ('$email', '$password', $balance, '$status', '$created_at', '$updated_at')"
                 echo "✓ Migrated Gate account: $email"
             else
                 echo "- Gate account $email already exists, skipping"
@@ -76,7 +76,7 @@ migrate_accounts() {
             # Check if account exists
             exists=$(psql "$DB_URL" -t -c "SELECT COUNT(*) FROM bybit_accounts WHERE account_name='$account_name'" | xargs)
             if [ "$exists" -eq 0 ]; then
-                exec_sql "INSERT INTO bybit_accounts (account_name, api_key, api_secret_encrypted, active_ads, status, created_at, updated_at) VALUES ('$account_name', '$api_key', '$api_secret', $active_ads, '$status', '$created_at', '$updated_at')"
+                exec_sql "INSERT INTO bybit_accounts (account_name, api_key, api_secret, active_ads, status, created_at, updated_at) VALUES ('$account_name', '$api_key', '$api_secret', $active_ads, '$status', '$created_at', '$updated_at')"
                 echo "✓ Migrated Bybit account: $account_name"
             else
                 echo "- Bybit account $account_name already exists, skipping"
@@ -119,7 +119,7 @@ migrate_gate_cookies() {
                         last_auth_sql="'$last_auth'"
                     fi
                     
-                    exec_sql "INSERT INTO gate_cookies (id, email, password_encrypted, status, cookies, last_auth, balance, created_at, updated_at) VALUES ('$id', '$email', '$password', '$status', $cookies_sql, $last_auth_sql, $balance, '$created_at', '$updated_at')"
+                    exec_sql "INSERT INTO gate_cookies (id, email, password, status, cookies, last_auth, balance, created_at, updated_at) VALUES ('$id', '$email', '$password', '$status', $cookies_sql, $last_auth_sql, $balance, '$created_at', '$updated_at')"
                     echo "✓ Migrated Gate cookie: $id"
                 else
                     echo "- Gate cookie $id already exists, skipping"

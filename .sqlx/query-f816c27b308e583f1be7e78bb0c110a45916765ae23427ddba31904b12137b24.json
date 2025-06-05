@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO bybit_sessions (id, api_key, api_secret, status)\n            VALUES ($1, $2, $3, $4)\n            ON CONFLICT (id) DO UPDATE \n            SET api_secret = EXCLUDED.api_secret,\n                updated_at = CURRENT_TIMESTAMP\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Text",
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f816c27b308e583f1be7e78bb0c110a45916765ae23427ddba31904b12137b24"
+}

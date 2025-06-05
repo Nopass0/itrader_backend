@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE bybit_accounts SET last_used = CURRENT_TIMESTAMP WHERE id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a139eb4c41e2c4e4cbc901c4c39d126906c21e9e442dc5bc691f3bd2a8eab1a3"
+}

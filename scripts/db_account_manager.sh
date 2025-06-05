@@ -138,7 +138,7 @@ add_gate_account() {
     balance=${balance:-10000000}
     
     result=$(psql "$DB_URL" -t -c "
-        INSERT INTO gate_accounts (email, password_encrypted, balance, status)
+        INSERT INTO gate_accounts (email, password, balance, status)
         VALUES ('$email', '$password', $balance, 'active')
         RETURNING id;
     " 2>&1)
@@ -212,7 +212,7 @@ update_gate_account() {
         updates="${updates}balance=$new_balance, "
     fi
     if [ -n "$new_password" ]; then
-        updates="${updates}password_encrypted='$new_password', "
+        updates="${updates}password='$new_password', "
     fi
     if [ -n "$new_status" ]; then
         updates="${updates}status='$new_status', "
@@ -261,6 +261,36 @@ delete_gate_account() {
     
     if [ "$confirm" == "yes" ]; then
         psql "$DB_URL" -c "DELETE FROM gate_accounts WHERE id = $id"
+        echo -e "${GREEN}✅ Account deleted successfully${NC}"
+    else
+        echo -e "${YELLOW}Deletion cancelled${NC}"
+    fi
+}
+
+# Delete Bybit account
+delete_bybit_account() {
+    list_bybit_accounts
+    echo
+    read -p "Enter account ID to delete (or 0 to cancel): " id
+    
+    if [ "$id" -eq 0 ]; then
+        return
+    fi
+    
+    # Get account info
+    account_name=$(psql "$DB_URL" -t -c "SELECT account_name FROM bybit_accounts WHERE id = $id" | xargs)
+    
+    if [ -z "$account_name" ]; then
+        echo -e "${RED}Account not found${NC}"
+        return
+    fi
+    
+    echo -e "\n${YELLOW}⚠️  Are you sure you want to delete this account?${NC}"
+    echo "Account: $account_name"
+    read -p "Type 'yes' to confirm: " confirm
+    
+    if [ "$confirm" == "yes" ]; then
+        psql "$DB_URL" -c "DELETE FROM bybit_accounts WHERE id = $id"
         echo -e "${GREEN}✅ Account deleted successfully${NC}"
     else
         echo -e "${YELLOW}Deletion cancelled${NC}"
@@ -324,7 +354,7 @@ main_menu() {
             5) list_bybit_accounts; read -p "Press Enter to continue..." ;;
             6) add_bybit_account ;;
             7) echo "Update Bybit account - Not implemented yet" ;;
-            8) echo "Delete Bybit account - Not implemented yet" ;;
+            8) delete_bybit_account ;;
             9) show_statistics; read -p "Press Enter to continue..." ;;
             10) 
                 echo "Enter SQL query (or 'exit' to cancel):"

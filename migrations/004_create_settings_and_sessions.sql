@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS settings (
 CREATE TABLE IF NOT EXISTS gate_cookies (
     id VARCHAR(50) PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
-    password_encrypted TEXT NOT NULL,
+    password TEXT NOT NULL,
     status VARCHAR(20) DEFAULT 'inactive',
     cookies TEXT,
     last_auth TIMESTAMP,

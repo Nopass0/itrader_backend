@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE bybit_accounts\n            SET active_ads = $1, status = $2, last_used = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP\n            WHERE id = $3\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Varchar",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e14746ae420af32018cda04585c17fe2045c0548c726d8b9f59b6709423279f7"
+}

@@ -86,7 +86,7 @@ def migrate_accounts(conn):
             
         cur.execute("""
             INSERT INTO gate_accounts (
-                email, password_encrypted, balance, status, 
+                email, password, balance, status, 
                 last_auth, created_at, updated_at
             ) VALUES (
                 %s, %s, %s, %s, %s, %s, %s
@@ -153,7 +153,7 @@ def migrate_gate_cookies(conn):
         
         cur.execute("""
             INSERT INTO gate_cookies (
-                id, email, password_encrypted, status, cookies,
+                id, email, password, status, cookies,
                 last_auth, balance, created_at, updated_at
             ) VALUES (
                 %s, %s, %s, %s, %s, %s, %s, %s, %s

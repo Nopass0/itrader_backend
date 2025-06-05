@@ -1,0 +1,44 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT \n                (SELECT COUNT(*) FROM gate_accounts WHERE status = 'active') as gate_active,\n                (SELECT COUNT(*) FROM gate_accounts) as gate_total,\n                (SELECT COUNT(*) FROM bybit_accounts WHERE status = 'available') as bybit_available,\n                (SELECT COUNT(*) FROM bybit_accounts) as bybit_total,\n                (SELECT COALESCE(SUM(active_ads), 0) FROM bybit_accounts) as total_active_ads\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "gate_active",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "gate_total",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "bybit_available",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "bybit_total",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "total_active_ads",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "b4180cc3af525b9821933bffa8ac909dfe06a49a888b26f6fc8682765838e4f3"
+}

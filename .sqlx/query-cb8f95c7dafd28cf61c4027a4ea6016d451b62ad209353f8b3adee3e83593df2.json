@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE gate_cookies\n            SET cookies = $1, last_auth = CURRENT_TIMESTAMP, status = 'active',\n                updated_at = CURRENT_TIMESTAMP\n            WHERE id = $2\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "cb8f95c7dafd28cf61c4027a4ea6016d451b62ad209353f8b3adee3e83593df2"
+}

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE gate_accounts\n            SET balance = $1, updated_at = CURRENT_TIMESTAMP\n            WHERE id = $2\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Numeric",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "482ee380d4297ab527ce6a6a92186e8bb108ce62ce9270e621a4702fd755937c"
+}

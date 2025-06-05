@@ -66,10 +66,15 @@ check_dependencies() {
         fi
     fi
     
-    # Check Python dependencies
+    # Check Python dependencies and UV setup
     if command_exists python3; then
-        if ! python3 -c "import pybit" 2>/dev/null; then
-            warnings+=("Python dependencies (run: pip install -r requirements.txt)")
+        # Check if UV is installed
+        if ! command_exists uv; then
+            warnings+=("UV package manager (install from https://github.com/astral-sh/uv)")
+        elif [ ! -d ".venv" ]; then
+            warnings+=("UV virtual environment (run: uv venv --python 3.11)")
+        elif ! .venv/bin/python -c "import pybit" 2>/dev/null; then
+            warnings+=("Python dependencies (run: uv pip install -r requirements.txt)")
         fi
     fi
     
@@ -183,27 +188,46 @@ if [ ! -f db/settings_example.json ]; then
 EOF
 fi
 
-# Try to find Python library
-echo "Checking Python environment..."
-PYTHON_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null || echo "none")
+# Set up UV Python environment
+echo "Setting up Python environment..."
 
-if [ "$PYTHON_VERSION" != "none" ]; then
-    echo "✅ Found Python $PYTHON_VERSION"
-    
-    # Try to find the Python library
-    PYTHON_LIB=$(python3 -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))' 2>/dev/null)
-    if [ -n "$PYTHON_LIB" ]; then
-        export LD_LIBRARY_PATH="$PYTHON_LIB:$LD_LIBRARY_PATH"
-    fi
-    
-    # Also try common locations
-    export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:/usr/local/lib:$LD_LIBRARY_PATH"
-    
-    # Add local libs directory for Python compatibility
-    export LD_LIBRARY_PATH="$(pwd)/libs:$LD_LIBRARY_PATH"
-else
-    echo "⚠️  Python not found - Bybit P2P features will be limited"
+# Check if UV is installed
+if ! command_exists uv; then
+    echo "⚠️  UV not installed - installing now..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.cargo/bin:$PATH"
 fi
+
+# Create virtual environment if it doesn't exist
+if [ ! -d ".venv" ]; then
+    echo "Creating UV virtual environment..."
+    uv venv --python 3.11
+fi
+
+# Install dependencies if needed
+if ! .venv/bin/python -c "import pybit" 2>/dev/null; then
+    echo "Installing Python dependencies..."
+    uv pip install -r requirements.txt
+fi
+
+# Activate the virtual environment
+source .venv/bin/activate
+
+# Set up Python library paths for Rust/PyO3
+PYTHON_VERSION=$(.venv/bin/python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+echo "✅ Using Python $PYTHON_VERSION from UV environment"
+
+# Get the Python library path from the virtual environment
+PYTHON_LIB=$(.venv/bin/python -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))' 2>/dev/null)
+if [ -n "$PYTHON_LIB" ]; then
+    export LD_LIBRARY_PATH="$PYTHON_LIB:$LD_LIBRARY_PATH"
+fi
+
+# Also add the virtual environment's lib directory
+export LD_LIBRARY_PATH="$(pwd)/.venv/lib:$LD_LIBRARY_PATH"
+
+# Add local libs directory for Python compatibility
+export LD_LIBRARY_PATH="$(pwd)/libs:$LD_LIBRARY_PATH"
 
 echo
 

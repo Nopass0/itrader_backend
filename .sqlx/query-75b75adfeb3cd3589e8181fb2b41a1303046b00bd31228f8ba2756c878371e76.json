@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE gate_accounts\n            SET status = $1, last_auth = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP\n            WHERE id = $2\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "75b75adfeb3cd3589e8181fb2b41a1303046b00bd31228f8ba2756c878371e76"
+}

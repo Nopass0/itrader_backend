@@ -1,0 +1,25 @@
+{
+  "gate_accounts": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "login": "user@example.com",
+      "password": "your_password_here",
+      "cookies": null,
+      "last_auth": null,
+      "balance": 0.0,
+      "created_at": "2025-01-04T12:00:00Z",
+      "updated_at": "2025-01-04T12:00:00Z"
+    }
+  ],
+  "bybit_accounts": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "api_key": "your_api_key_here",
+      "api_secret": "your_api_secret_here",
+      "active_ads": 0,
+      "last_used": null,
+      "created_at": "2025-01-04T12:00:00Z",
+      "updated_at": "2025-01-04T12:00:00Z"
+    }
+  ]
+}

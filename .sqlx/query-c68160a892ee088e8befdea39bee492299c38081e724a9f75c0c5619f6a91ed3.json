@@ -1,0 +1,68 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT admin_token, balance_update_interval, gate_relogin_interval,\n                   rate_limit_per_minute, payment_methods, alternate_payments,\n                   ocr_validation, cleanup_days, receipt_email\n            FROM settings\n            WHERE id = 1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "admin_token",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "balance_update_interval",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "gate_relogin_interval",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "rate_limit_per_minute",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "payment_methods",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 5,
+        "name": "alternate_payments",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "ocr_validation",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "cleanup_days",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "receipt_email",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "c68160a892ee088e8befdea39bee492299c38081e724a9f75c0c5619f6a91ed3"
+}
