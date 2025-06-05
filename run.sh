@@ -21,8 +21,13 @@ echo
 
 # Check if settings mode
 if [ "$1" == "--settings" ]; then
-    source "$(dirname "$0")/scripts/account_manager.sh"
-    manage_accounts_menu
+    # Use database account manager if psql is available
+    if command -v psql >/dev/null 2>&1; then
+        exec "$(dirname "$0")/scripts/db_account_manager.sh"
+    else
+        source "$(dirname "$0")/scripts/account_manager.sh"
+        manage_accounts_menu
+    fi
     exit 0
 fi
 
@@ -115,6 +120,16 @@ else
 fi
 
 echo
+
+# Run database migrations if sqlx-cli is available
+if command -v sqlx >/dev/null 2>&1; then
+    echo "Running database migrations..."
+    sqlx migrate run || echo "⚠️  Migration failed - will try to run without migrations"
+else
+    echo "⚠️  sqlx-cli not found - skipping migrations"
+fi
+
+echo
 echo "Starting server..."
 echo "=================="
 
@@ -128,9 +143,9 @@ cat << EOF
 3. Health Check: http://localhost:8080/health
 
 📁 Account Management:
-   - Gate accounts: db/gate/*.json
-   - Bybit accounts: db/bybit/*.json
-   - See ACCOUNT_SETUP.md for details
+   - Accounts stored in PostgreSQL database
+   - Use './run.sh --settings' to manage accounts
+   - First run will prompt to add accounts if none exist
 
 🔧 Configuration:
    - Edit .env for API keys and settings

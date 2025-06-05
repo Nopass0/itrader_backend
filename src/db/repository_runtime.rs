@@ -8,7 +8,7 @@ use crate::core::config::DatabaseConfig;
 use super::models::*;
 
 pub struct Repository {
-    pool: PgPool,
+    pub pool: PgPool,
 }
 
 impl Repository {

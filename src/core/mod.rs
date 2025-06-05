@@ -6,3 +6,4 @@ pub mod state;
 pub mod accounts;
 pub mod account_storage;
 pub mod auto_trader;
+pub mod account_setup;

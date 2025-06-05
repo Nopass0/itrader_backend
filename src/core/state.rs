@@ -8,7 +8,7 @@ use crate::core::config::Config;
 use crate::core::rate_limiter::RateLimiter;
 use crate::core::accounts::AccountManager;
 use crate::core::account_storage::AccountStorage;
-use crate::db::Repository;
+use crate::db::{Repository, AccountRepository};
 use crate::gate::client::GateClient;
 use crate::gate::GateAccountManager;
 use crate::bybit::BybitP2PClient;
@@ -16,6 +16,7 @@ use crate::bybit::BybitP2PClient;
 pub struct AppState {
     pub config: Config,
     pub repository: Arc<Repository>,
+    pub account_repository: Arc<AccountRepository>,
     pub rate_limiter: Arc<RateLimiter>,
     pub account_manager: Arc<AccountManager>,
     pub account_storage: Arc<AccountStorage>,
@@ -32,6 +33,9 @@ impl AppState {
     pub async fn new(config: Config) -> crate::utils::error::Result<Arc<Self>> {
         // Create repository
         let repository = Arc::new(Repository::new(&config.database).await?);
+        
+        // Create account repository
+        let account_repository = Arc::new(AccountRepository::new(repository.pool.clone()));
         
         // Create rate limiter
         let rate_limiter = Arc::new(RateLimiter::new(&config.rate_limits));
@@ -60,6 +64,7 @@ impl AppState {
         let state = Arc::new(Self {
             config,
             repository,
+            account_repository,
             rate_limiter,
             account_manager,
             account_storage,

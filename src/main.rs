@@ -15,7 +15,7 @@ mod ocr;
 // mod email;
 mod db;
 
-use crate::core::{app::Application, config::Config};
+use crate::core::{app::Application, config::Config, account_setup::AccountSetup};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -50,8 +50,16 @@ async fn main() -> Result<()> {
     let mut config = Config::load()?;
     config.auto_trader.auto_confirm = auto_mode;
     
-    // Create and start application
-    let app = Application::new(config).await?;
+    // Create application state first to get access to repositories
+    let state = core::state::AppState::new(config.clone()).await?;
+    
+    // Check and ensure accounts exist
+    let account_setup = AccountSetup::new(state.account_repository.clone());
+    account_setup.ensure_accounts_exist().await?;
+    account_setup.show_account_summary().await?;
+    
+    // Create and start application with the state
+    let app = Application::from_state(state).await?;
     
     // Spawn the application
     let app_handle = tokio::spawn(async move {

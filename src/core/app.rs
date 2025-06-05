@@ -25,6 +25,15 @@ impl Application {
             tasks: Vec::new(),
         })
     }
+    
+    pub async fn from_state(state: Arc<AppState>) -> Result<Self> {
+        info!("Initializing application from existing state");
+        
+        Ok(Self {
+            state,
+            tasks: Vec::new(),
+        })
+    }
 
     pub async fn run(mut self) -> Result<()> {
         info!("Starting application");

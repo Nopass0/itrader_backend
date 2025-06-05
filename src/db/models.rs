@@ -8,11 +8,11 @@ use uuid::Uuid;
 pub struct GateAccount {
     pub id: i32,
     pub email: String,
-    pub password_encrypted: String,
-    pub cookies: Option<serde_json::Value>,
-    pub last_auth: Option<DateTime<Utc>>,
+    pub password: String,
     pub balance: Decimal,
     pub status: String,
+    pub cookies: Option<serde_json::Value>,
+    pub last_auth: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -22,9 +22,10 @@ pub struct BybitAccount {
     pub id: i32,
     pub account_name: String,
     pub api_key: String,
-    pub api_secret_encrypted: String,
+    pub api_secret: String,
     pub active_ads: i32,
     pub status: String,
+    pub last_used: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
