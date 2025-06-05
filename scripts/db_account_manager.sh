@@ -89,7 +89,7 @@ add_gate_account() {
     balance=${balance:-10000000}
     
     result=$(psql "$DB_URL" -t -c "
-        INSERT INTO gate_accounts (email, password, balance, status)
+        INSERT INTO gate_accounts (email, password_encrypted, balance, status)
         VALUES ('$email', '$password', $balance, 'active')
         RETURNING id;
     " 2>&1)
@@ -149,7 +149,7 @@ update_gate_account() {
         updates="${updates}balance=$new_balance, "
     fi
     if [ -n "$new_password" ]; then
-        updates="${updates}password='$new_password', "
+        updates="${updates}password_encrypted='$new_password', "
     fi
     if [ -n "$new_status" ]; then
         updates="${updates}status='$new_status', "
