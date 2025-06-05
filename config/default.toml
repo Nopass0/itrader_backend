@@ -1,0 +1,72 @@
+# Default configuration for Auto-Trader System
+
+[server]
+host = "127.0.0.1"
+port = 8080
+
+[database]
+url = "postgres://postgres:password@localhost/itrader"
+max_connections = 10
+min_connections = 1
+
+[redis]
+url = "redis://localhost:6379"
+pool_size = 10
+
+[gate]
+base_url = "https://panel.gate.cx/api/v1"
+p2p_url = "https://www.gate.io/web/otc"
+panel_url = "https://panel.gate.cx"
+session_refresh_interval = 1800  # 30 minutes in seconds
+balance_check_interval = 14400   # 4 hours in seconds
+target_balance = 10000000.0      # 10M RUB
+min_balance = 1000000.0          # 1M RUB
+request_timeout = 30             # 30 seconds
+shutdown_balance = 500000.0      # 500K RUB
+
+[bybit]
+rest_url = "https://api.bybit.com"
+ws_url = "wss://stream.bybit.com/v5/public/linear"
+p2p_api_version = "v1"
+max_ads_per_account = 10
+
+[ai]
+openrouter_api_key = ""
+model = "gpt-3.5-turbo"
+max_tokens = 150
+temperature = 0.7
+response_delay_min = 1
+response_delay_max = 3
+
+[rate_limits]
+gate_requests_per_minute = 240
+bybit_requests_per_minute = 120
+default_burst_size = 10
+
+[email]
+imap_server = "imap.gmail.com"
+imap_port = 993
+email = ""
+password = ""
+check_interval = 30
+
+[ocr]
+tesseract_lang = "rus+eng"
+confidence_threshold = 0.8
+
+[monitoring]
+metrics_port = 9090
+health_check_interval = 60
+
+[auto_trader]
+enabled = false
+check_interval_secs = 30
+balance_check_interval_hours = 4
+target_balance_rub = 10000000.0
+min_order_amount = 1000.0
+max_order_amount = 50000.0
+auto_confirm = false
+max_concurrent_orders = 5
+interactive_mode = true
+
+admin_token = "dev-token-123"

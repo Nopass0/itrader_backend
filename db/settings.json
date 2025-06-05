@@ -1,0 +1,16 @@
+{
+  "admin_token": "omMUB7T80wCZ_UxcWyC3LMGlqPZHy2g28osHLcvMeEM",
+  "balance_update_interval": 14400,
+  "gate_relogin_interval": 1800,
+  "rate_limit_per_minute": 240,
+  "payment_methods": [
+    "SBP",
+    "Tinkoff"
+  ],
+  "alternate_payments": true,
+  "ocr_validation": true,
+  "cleanup_days": 30,
+  "receipt_email": "noreply@tinkoff.ru",
+  "gate_accounts": [],
+  "bybit_accounts": []
+}

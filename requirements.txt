@@ -1,0 +1,28 @@
+# Core dependencies
+aiohttp==3.9.1
+click>=8.1.0
+colorama>=0.4.6
+python-dotenv==1.0.0
+toml>=0.10.2
+
+# Bybit SDK
+pybit==5.11.0
+
+# Email processing
+PyPDF2>=3.0.0
+
+# Cryptography
+pycryptodome==3.23.0
+
+# Database (optional, for future use)
+aiosqlite>=0.19.0
+
+# OCR (optional)
+# Note: Tesseract must be installed separately:
+# sudo apt-get install tesseract-ocr tesseract-ocr-rus
+
+# Development dependencies
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+black>=23.0.0
+flake8>=6.0.0

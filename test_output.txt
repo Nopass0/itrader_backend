@@ -1,0 +1,989 @@
+=== iTrader Backend Test Suite ===
+
+Comparing transaction 2463024 with receipt test_data/receipt_27.05.2025.pdf
+----------------------------------------
+warning: unused import: `stream::StreamExt`
+ --> src/api/websocket.rs:6:30
+  |
+6 | use futures::{sink::SinkExt, stream::StreamExt};
+  |                              ^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `warn`
+ --> src/core/app.rs:3:28
+  |
+3 | use tracing::{info, error, warn};
+  |                            ^^^^
+
+warning: unused import: `uuid::Uuid`
+ --> src/core/orchestrator.rs:6:5
+  |
+6 | use uuid::Uuid;
+  |     ^^^^^^^^^^
+
+warning: unused import: `parking_lot::Mutex`
+ --> src/core/rate_limiter.rs:8:5
+  |
+8 | use parking_lot::Mutex;
+  |     ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `rust_decimal::Decimal`
+ --> src/gate/api.rs:3:5
+  |
+3 | use rust_decimal::Decimal;
+  |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `debug`, `error`, `info`, and `warn`
+ --> src/bybit/client.rs:4:15
+  |
+4 | use tracing::{debug, warn, info, error};
+  |               ^^^^^  ^^^^  ^^^^  ^^^^^
+
+warning: unused import: `pyo3::types::PyList`
+ --> src/bybit/python_bridge.rs:2:5
+  |
+2 | use pyo3::types::PyList;
+  |     ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::utils::error::AppError`
+ --> src/bybit/python_bridge.rs:8:5
+  |
+8 | use crate::utils::error::AppError;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `PaymentMethod`
+ --> src/bybit/python_bridge.rs:9:59
+  |
+9 | use super::models::{AccountInfo, Advertisement, P2POrder, PaymentMethod};
+  |                                                           ^^^^^^^^^^^^^
+
+warning: unused import: `anyhow::Error`
+ --> src/bybit/rate_fetcher.rs:7:5
+  |
+7 | use anyhow::Error;
+  |     ^^^^^^^^^^^^^
+
+warning: unused import: `crate::utils::error::Result`
+ --> src/ai/chat.rs:2:5
+  |
+2 | use crate::utils::error::Result;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `AppError`
+ --> src/ocr/processor.rs:2:35
+  |
+2 | use crate::utils::error::{Result, AppError};
+  |                                   ^^^^^^^^
+
+warning: unused import: `NaiveDate`
+ --> src/ocr/pdf.rs:2:29
+  |
+2 | use chrono::{DateTime, Utc, NaiveDate, NaiveDateTime};
+  |                             ^^^^^^^^^
+
+warning: unused import: `crate::utils::error::Result`
+ --> src/email/imap_client.rs:1:5
+  |
+1 | use crate::utils::error::Result;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::pin::Pin`
+ --> src/email/monitor.rs:4:5
+  |
+4 | use std::pin::Pin;
+  |     ^^^^^^^^^^^^^
+
+warning: unused import: `OrderPool`
+ --> src/db/pool_manager.rs:8:32
+  |
+8 | use crate::db::models::{Order, OrderPool};
+  |                                ^^^^^^^^^
+
+warning: unused import: `error`
+ --> src/gmail/client.rs:9:28
+  |
+9 | use tracing::{info, debug, error};
+  |                            ^^^^^
+
+warning: unused variable: `response`
+  --> src/gate/auth.rs:60:16
+   |
+60 |             Ok(response) => {
+   |                ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_response`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `receipt_processor`
+  --> src/core/orchestrator.rs:86:13
+   |
+86 |         let receipt_processor = self.receipt_processor.clone();
+   |             ^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_receipt_processor`
+
+warning: unused variable: `repository`
+  --> src/core/orchestrator.rs:87:13
+   |
+87 |         let repository = self.state.repository.clone();
+   |             ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_repository`
+
+warning: unused variable: `callback`
+  --> src/email/monitor.rs:15:54
+   |
+15 |     pub async fn monitor_receipts<F, Fut>(&self, mut callback: F) -> Result<()>
+   |                                                      ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_callback`
+
+warning: variable does not need to be mutable
+  --> src/email/monitor.rs:15:50
+   |
+15 |     pub async fn monitor_receipts<F, Fut>(&self, mut callback: F) -> Result<()>
+   |                                                  ----^^^^^^^^
+   |                                                  |
+   |                                                  help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` on by default
+
+warning: unused variable: `receipt_data`
+  --> src/core/orchestrator.rs:92:22
+   |
+92 |                     |receipt_data| async {
+   |                      ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_receipt_data`
+
+warning: unused variable: `message`
+   --> src/bybit/p2p_python.rs:192:59
+    |
+192 |     pub async fn send_chat_message(&self, order_id: &str, message: &str) -> Result<()> {
+    |                                                           ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_message`
+
+warning: unused variable: `p2p_order`
+   --> src/core/orchestrator.rs:339:52
+    |
+339 |     async fn wait_for_receipt(&self, order: Order, p2p_order: crate::bybit::models::P2POrder) -> Result<()> {
+    |                                                    ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_p2p_order`
+
+warning: unused variable: `messages`
+   --> src/core/orchestrator.rs:332:13
+    |
+332 |         let messages = bybit_client.get_chat_messages(&p2p_order.id).await?;
+    |             ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_messages`
+
+warning: variable does not need to be mutable
+  --> src/utils/retry.rs:90:5
+   |
+90 |     mut operation: F,
+   |     ----^^^^^^^^^
+   |     |
+   |     help: remove this `mut`
+
+warning: unused variable: `ad_id`
+   --> src/bybit/p2p_python.rs:208:38
+    |
+208 |     pub async fn create_order(&self, ad_id: &str, amount: &str) -> Result<P2POrder> {
+    |                                      ^^^^^ help: if this is intentional, prefix it with an underscore: `_ad_id`
+
+warning: unused variable: `amount`
+   --> src/bybit/p2p_python.rs:208:51
+    |
+208 |     pub async fn create_order(&self, ad_id: &str, amount: &str) -> Result<P2POrder> {
+    |                                                   ^^^^^^ help: if this is intentional, prefix it with an underscore: `_amount`
+
+warning: unused variable: `order_id`
+   --> src/bybit/p2p_python.rs:248:46
+    |
+248 |     pub async fn monitor_order_status(&self, order_id: &str) -> Result<P2POrder> {
+    |                                              ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_order_id`
+
+warning: unused variable: `days_to_keep`
+   --> src/db/pool_manager.rs:128:49
+    |
+128 |     pub async fn cleanup_completed_pools(&self, days_to_keep: i64) -> Result<u64> {
+    |                                                 ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_days_to_keep`
+
+warning: unused import: `sink::SinkExt`
+ --> src/api/websocket.rs:6:15
+  |
+6 | use futures::{sink::SinkExt, stream::StreamExt};
+  |               ^^^^^^^^^^^^^
+
+warning: unused variable: `state`
+  --> src/api/routes.rs:14:22
+   |
+14 | pub fn create_routes(state: Arc<AppState>) -> Router<Arc<AppState>> {
+   |                      ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `text`
+ --> src/ocr/validators.rs:7:23
+  |
+7 | pub fn extract_amount(text: &str) -> Option<Decimal> {
+  |                       ^^^^ help: if this is intentional, prefix it with an underscore: `_text`
+
+warning: unused variable: `body`
+ --> src/email/parser.rs:1:25
+  |
+1 | pub fn parse_email_body(body: &str) -> Option<Vec<u8>> {
+  |                         ^^^^ help: if this is intentional, prefix it with an underscore: `_body`
+
+warning: field `meta` is never read
+   --> src/gate/client.rs:529:13
+    |
+527 |         struct PayoutsData {
+    |                ----------- field in this struct
+528 |             data: Vec<Payout>,
+529 |             meta: serde_json::Value,
+    |             ^^^^
+    |
+    = note: `#[warn(dead_code)]` on by default
+
+warning: field `time_nano` is never read
+  --> src/bybit/p2p.rs:59:13
+   |
+55 |         struct TimeResponse {
+   |                ------------ field in this struct
+...
+59 |             time_nano: String,
+   |             ^^^^^^^^^
+
+warning: field `config` is never read
+ --> src/ai/chat.rs:5:5
+  |
+4 | pub struct ChatManager {
+  |            ----------- field in this struct
+5 |     config: AIConfig,
+  |     ^^^^^^
+
+warning: field `config` is never read
+ --> src/email/monitor.rs:7:5
+  |
+6 | pub struct EmailMonitor {
+  |            ------------ field in this struct
+7 |     config: EmailConfig,
+  |     ^^^^^^
+
+warning: `itrader-backend` (lib) generated 39 warnings (run `cargo fix --lib -p itrader-backend` to apply 19 suggestions)
+warning: unused import: `server::ApiServer`
+ --> src/api/mod.rs:5:9
+  |
+5 | pub use server::ApiServer;
+  |         ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `transaction_service::TransactionService`
+  --> src/gate/mod.rs:10:9
+   |
+10 | pub use transaction_service::TransactionService;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `client::BybitClient`
+  --> src/bybit/mod.rs:19:9
+   |
+19 | pub use client::BybitClient;
+   |         ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `models::*`
+  --> src/bybit/mod.rs:20:9
+   |
+20 | pub use models::*;
+   |         ^^^^^^^^^
+
+warning: unused import: `python_bridge::PyBybitClient`
+  --> src/bybit/mod.rs:21:9
+   |
+21 | pub use python_bridge::PyBybitClient;
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `BybitRateFetcher` and `RateScenario`
+  --> src/bybit/mod.rs:22:24
+   |
+22 | pub use rate_fetcher::{BybitRateFetcher, RateScenario};
+   |                        ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^
+
+warning: unused imports: `PdfReceiptParser` and `ReceiptInfo`
+ --> src/ocr/mod.rs:6:15
+  |
+6 | pub use pdf::{PdfReceiptParser, ReceiptInfo};
+  |               ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^
+
+warning: unused import: `pool_manager::PoolManager`
+ --> src/db/mod.rs:7:9
+  |
+7 | pub use pool_manager::PoolManager;
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: methods `check_immediate` and `reset` are never used
+  --> src/core/rate_limiter.rs:73:12
+   |
+19 | impl RateLimiter {
+   | ---------------- methods in this implementation
+...
+73 |     pub fn check_immediate(&self, endpoint: &str) -> Result<()> {
+   |            ^^^^^^^^^^^^^^^
+...
+92 |     pub fn reset(&self, endpoint: &str) {
+   |            ^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: method `trigger_shutdown` is never used
+  --> src/core/state.rs:66:12
+   |
+23 | impl AppState {
+   | ------------- method in this implementation
+...
+66 |     pub fn trigger_shutdown(&self) {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: struct `OrderContext` is never constructed
+  --> src/core/state.rs:76:12
+   |
+76 | pub struct OrderContext {
+   |            ^^^^^^^^^^^^
+   |
+   = note: `OrderContext` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: struct `SystemMetrics` is never constructed
+  --> src/core/state.rs:85:12
+   |
+85 | pub struct SystemMetrics {
+   |            ^^^^^^^^^^^^^
+   |
+   = note: `SystemMetrics` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple variants are never constructed
+  --> src/utils/error.rs:18:5
+   |
+10 | pub enum AppError {
+   |          -------- variants in this enum
+...
+18 |     InvalidAmount { 
+   |     ^^^^^^^^^^^^^
+...
+40 |     InvalidReceipt(String),
+   |     ^^^^^^^^^^^^^^
+...
+43 |     AmountMismatch {
+   |     ^^^^^^^^^^^^^^
+...
+61 |     WebSocket(String),
+   |     ^^^^^^^^^
+...
+64 |     AIService(String),
+   |     ^^^^^^^^^
+...
+67 |     EmailService(String),
+   |     ^^^^^^^^^^^^
+...
+70 |     OCRProcessing(String),
+   |     ^^^^^^^^^^^^^
+...
+73 |     NotImplemented(String),
+   |     ^^^^^^^^^^^^^^
+...
+76 |     Gmail(String),
+   |     ^^^^^
+...
+79 |     FileSystem(String),
+   |     ^^^^^^^^^^
+...
+82 |     Serialization(String),
+   |     ^^^^^^^^^^^^^
+...
+85 |     Configuration(String),
+   |     ^^^^^^^^^^^^^
+   |
+   = note: `AppError` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: function `encrypt` is never used
+  --> src/utils/crypto.rs:15:8
+   |
+15 | pub fn encrypt(data: &str, key: &str) -> Result<String> {
+   |        ^^^^^^^
+
+warning: function `hash_password` is never used
+  --> src/utils/crypto.rs:70:8
+   |
+70 | pub fn hash_password(password: &str) -> Result<String> {
+   |        ^^^^^^^^^^^^^
+
+warning: function `verify_password` is never used
+  --> src/utils/crypto.rs:82:8
+   |
+82 | pub fn verify_password(password: &str, password_hash: &str) -> Result<bool> {
+   |        ^^^^^^^^^^^^^^^
+
+warning: fields `max_attempts`, `initial_delay`, `max_delay`, and `exponential_base` are never read
+  --> src/utils/retry.rs:8:9
+   |
+7  | pub struct RetryConfig {
+   |            ----------- fields in this struct
+8  |     pub max_attempts: u32,
+   |         ^^^^^^^^^^^^
+9  |     pub initial_delay: Duration,
+   |         ^^^^^^^^^^^^^
+10 |     pub max_delay: Duration,
+   |         ^^^^^^^^^
+11 |     pub exponential_base: f32,
+   |         ^^^^^^^^^^^^^^^^
+
+warning: function `retry_with_backoff` is never used
+  --> src/utils/retry.rs:25:14
+   |
+25 | pub async fn retry_with_backoff<F, T, Fut>(
+   |              ^^^^^^^^^^^^^^^^^^
+
+warning: function `is_retryable_error` is never used
+  --> src/utils/retry.rs:76:4
+   |
+76 | fn is_retryable_error(error: &AppError) -> bool {
+   |    ^^^^^^^^^^^^^^^^^^
+
+warning: function `retry_with_fixed_delay` is never used
+  --> src/utils/retry.rs:86:14
+   |
+86 | pub async fn retry_with_fixed_delay<F, T, Fut>(
+   |              ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: multiple methods are never used
+   --> src/gate/client.rs:226:18
+    |
+25  | impl GateClient {
+    | --------------- methods in this implementation
+...
+226 |     pub async fn get_transactions(&self) -> Result<Vec<GateTransaction>> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+348 |     pub async fn get_available_transactions(&self) -> Result<Vec<Payout>> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+394 |     pub async fn get_in_progress_transactions(&self) -> Result<Vec<Payout>> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+438 |     pub async fn get_transaction_details(&self, transaction_id: &str) -> Result<Payout> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^
+...
+508 |     pub async fn search_transaction_by_id(&self, transaction_id: &str) -> Result<Option<Payout>> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+554 |     pub async fn complete_transaction(&self, transaction_id: &str) -> Result<()> {
+    |                  ^^^^^^^^^^^^^^^^^^^^
+...
+625 |     pub async fn get_cookies(&self) -> Vec<Cookie> {
+    |                  ^^^^^^^^^^^
+...
+630 |     pub async fn load_cookies(&self, file_path: &str) -> Result<()> {
+    |                  ^^^^^^^^^^^^
+
+warning: field `payout` is never read
+   --> src/gate/client.rs:480:13
+    |
+479 |         struct TransactionDetailsResponse {
+    |                -------------------------- field in this struct
+480 |             payout: Payout,
+    |             ^^^^^^
+
+warning: fields `data` and `meta` are never read
+   --> src/gate/client.rs:528:13
+    |
+527 |         struct PayoutsData {
+    |                ----------- fields in this struct
+528 |             data: Vec<Payout>,
+    |             ^^^^
+529 |             meta: serde_json::Value,
+    |             ^^^^
+
+warning: field `payouts` is never read
+   --> src/gate/client.rs:534:13
+    |
+533 |         struct PayoutsResponse {
+    |                --------------- field in this struct
+534 |             payouts: PayoutsData,
+    |             ^^^^^^^
+
+warning: methods `complete_transaction`, `get_transaction_details`, and `monitor_transactions` are never used
+  --> src/gate/api.rs:43:18
+   |
+13 | impl GateAPI {
+   | ------------ methods in this implementation
+...
+43 |     pub async fn complete_transaction(&self, transaction_id: &str) -> Result<()> {
+   |                  ^^^^^^^^^^^^^^^^^^^^
+...
+51 |     pub async fn get_transaction_details(&self, transaction_id: &str) -> Result<Option<GateTransaction>> {
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^
+...
+64 |     pub async fn monitor_transactions<F>(&self, mut callback: F) -> Result<()>
+   |                  ^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `TransactionService` is never constructed
+ --> src/gate/transaction_service.rs:8:12
+  |
+8 | pub struct TransactionService {
+  |            ^^^^^^^^^^^^^^^^^^
+
+warning: struct `CachedTransaction` is never constructed
+  --> src/gate/transaction_service.rs:13:8
+   |
+13 | struct CachedTransaction {
+   |        ^^^^^^^^^^^^^^^^^
+
+warning: multiple associated items are never used
+  --> src/gate/transaction_service.rs:19:12
+   |
+18 | impl TransactionService {
+   | ----------------------- associated items in this implementation
+19 |     pub fn new(client: GateClient) -> Self {
+   |            ^^^
+...
+26 |     pub async fn get_transaction(&self, transaction_id: &str) -> Result<Option<Payout>, AppError> {
+   |                  ^^^^^^^^^^^^^^^
+...
+56 |     pub async fn get_multiple_transactions(&self, transaction_ids: &[&str]) -> Result<HashMap<String, Option<Payout>>, AppError> {
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+67 |     pub async fn get_transaction_status(&self, transaction_id: &str) -> Result<Option<i32>, AppError> {
+   |                  ^^^^^^^^^^^^^^^^^^^^^^
+...
+72 |     pub async fn is_transaction_completed(&self, transaction_id: &str) -> Result<bool, AppError> {
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+77 |     pub async fn clear_cache(&self) {
+   |                  ^^^^^^^^^^^
+...
+87 |     pub async fn remove_from_cache(&self, transaction_id: &str) {
+   |                  ^^^^^^^^^^^^^^^^^
+
+warning: struct `BybitClient` is never constructed
+  --> src/bybit/client.rs:12:12
+   |
+12 | pub struct BybitClient {
+   |            ^^^^^^^^^^^
+
+warning: associated items `new`, `request`, and `check_response_status` are never used
+   --> src/bybit/client.rs:20:12
+    |
+19  | impl BybitClient {
+    | ---------------- associated items in this implementation
+20  |     pub fn new(
+    |            ^^^
+...
+41  |     pub async fn request<T, R>(&self, method: &str, endpoint: &str, params: Option<&T>) -> Result<R>
+    |                  ^^^^^^^
+...
+108 |     fn check_response_status(&self, response: &reqwest::Response) -> Result<()> {
+    |        ^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `BybitP2PClient` is never constructed
+  --> src/bybit/p2p.rs:29:12
+   |
+29 | pub struct BybitP2PClient {
+   |            ^^^^^^^^^^^^^^
+
+warning: multiple associated items are never used
+   --> src/bybit/p2p.rs:35:12
+    |
+34  | impl BybitP2PClient {
+    | ------------------- associated items in this implementation
+35  |     pub fn new(
+    |            ^^^
+...
+50  |     pub async fn get_server_time(&self) -> Result<i64> {
+    |                  ^^^^^^^^^^^^^^^
+...
+66  |     pub async fn get_account_info(&self) -> Result<AccountInfo> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+72  |     pub async fn get_active_ads_count(&self) -> Result<u32> {
+    |                  ^^^^^^^^^^^^^^^^^^^^
+...
+77  |     pub async fn is_account_available(&self) -> Result<bool> {
+    |                  ^^^^^^^^^^^^^^^^^^^^
+...
+82  |     pub async fn create_advertisement(&self, params: AdParams) -> Result<Advertisement> {
+    |                  ^^^^^^^^^^^^^^^^^^^^
+...
+90  |     pub async fn create_sell_ad_from_transaction(
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+109 |     pub async fn get_my_advertisements(&self) -> Result<Vec<Advertisement>> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^
+...
+120 |     pub async fn get_all_my_advertisements(&self) -> Result<Vec<Advertisement>> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+133 |     pub async fn get_active_advertisements(&self) -> Result<Vec<Advertisement>> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+146 |     pub async fn get_advertisement_orders(&self, ad_id: &str) -> Result<Vec<P2POrder>> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+158 |     pub async fn get_all_order_chats(&self, ad_id: &str) -> Result<Vec<OrderChat>> {
+    |                  ^^^^^^^^^^^^^^^^^^^
+...
+181 |     pub async fn delete_advertisement(&self, ad_id: &str) -> Result<()> {
+    |                  ^^^^^^^^^^^^^^^^^^^^
+...
+192 |     pub async fn get_order(&self, order_id: &str) -> Result<P2POrder> {
+    |                  ^^^^^^^^^
+...
+202 |     pub async fn get_active_orders(&self) -> Result<Vec<P2POrder>> {
+    |                  ^^^^^^^^^^^^^^^^^
+...
+212 |     pub async fn send_message(&self, order_id: &str, message: &str) -> Result<()> {
+    |                  ^^^^^^^^^^^^
+...
+225 |     pub async fn get_chat_messages(&self, order_id: &str) -> Result<Vec<ChatMessage>> {
+    |                  ^^^^^^^^^^^^^^^^^
+...
+236 |     pub async fn confirm_payment_received(&self, order_id: &str) -> Result<()> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+247 |     pub async fn release_order(&self, order_id: &str) -> Result<()> {
+    |                  ^^^^^^^^^^^^^
+...
+259 |     pub async fn appeal_order(&self, order_id: &str, reason: &str) -> Result<()> {
+    |                  ^^^^^^^^^^^^
+...
+271 |     pub async fn monitor_order_status(&self, order_id: &str) -> Result<P2POrder> {
+    |                  ^^^^^^^^^^^^^^^^^^^^
+
+warning: fields `time_second` and `time_nano` are never read
+  --> src/bybit/p2p.rs:57:13
+   |
+55 |         struct TimeResponse {
+   |                ------------ fields in this struct
+56 |             #[serde(rename = "timeSecond")]
+57 |             time_second: String,
+   |             ^^^^^^^^^^^
+58 |             #[serde(rename = "timeNano")]
+59 |             time_nano: String,
+   |             ^^^^^^^^^
+
+warning: type alias `HmacSha256` is never used
+ --> src/bybit/auth.rs:9:6
+  |
+9 | type HmacSha256 = Hmac<Sha256>;
+  |      ^^^^^^^^^^
+
+warning: struct `BybitAuth` is never constructed
+  --> src/bybit/auth.rs:11:12
+   |
+11 | pub struct BybitAuth {
+   |            ^^^^^^^^^
+
+warning: associated items `new`, `api_key`, `generate_signature`, and `generate_ws_signature` are never used
+  --> src/bybit/auth.rs:17:12
+   |
+16 | impl BybitAuth {
+   | -------------- associated items in this implementation
+17 |     pub fn new(api_key: String, api_secret: String) -> Self {
+   |            ^^^
+...
+24 |     pub fn api_key(&self) -> &str {
+   |            ^^^^^^^
+...
+28 |     pub fn generate_signature(&self, params: &impl Serialize, timestamp: &str) -> Result<String> {
+   |            ^^^^^^^^^^^^^^^^^^
+...
+68 |     pub fn generate_ws_signature(&self) -> Result<(String, String)> {
+   |            ^^^^^^^^^^^^^^^^^^^^^
+
+warning: methods `get_server_time` and `get_my_advertisements` are never used
+  --> src/bybit/python_bridge.rs:49:18
+   |
+20 | impl PyBybitClient {
+   | ------------------ methods in this implementation
+...
+49 |     pub async fn get_server_time(&self) -> Result<i64> {
+   |                  ^^^^^^^^^^^^^^^
+...
+83 |     pub async fn get_my_advertisements(&self) -> Result<Vec<Advertisement>> {
+   |                  ^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `BybitRateFetcher` is never constructed
+  --> src/bybit/rate_fetcher.rs:10:12
+   |
+10 | pub struct BybitRateFetcher {
+   |            ^^^^^^^^^^^^^^^^
+   |
+   = note: `BybitRateFetcher` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: enum `RateScenario` is never used
+  --> src/bybit/rate_fetcher.rs:46:10
+   |
+46 | pub enum RateScenario {
+   |          ^^^^^^^^^^^^
+   |
+   = note: `RateScenario` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: associated items `determine` and `get_page_number` are never used
+  --> src/bybit/rate_fetcher.rs:54:12
+   |
+53 | impl RateScenario {
+   | ----------------- associated items in this implementation
+54 |     pub fn determine(amount_rub: f64, moscow_time: DateTime<FixedOffset>) -> Self {
+   |            ^^^^^^^^^
+...
+67 |     pub fn get_page_number(&self) -> u32 {
+   |            ^^^^^^^^^^^^^^^
+
+warning: associated items `new`, `fetch_p2p_trades`, `get_rate_for_scenario`, `get_current_rate`, `get_all_rates`, and `get_moscow_time` are never used
+   --> src/bybit/rate_fetcher.rs:78:12
+    |
+77  | impl BybitRateFetcher {
+    | --------------------- associated items in this implementation
+78  |     pub fn new() -> Self {
+    |            ^^^
+...
+90  |     pub async fn fetch_p2p_trades(&self, page: u32) -> Result<P2PTradeResponse> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+125 |     pub async fn get_rate_for_scenario(&self, scenario: RateScenario) -> Result<f64> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^
+...
+161 |     pub async fn get_current_rate(&self, amount_rub: f64) -> Result<f64> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+171 |     pub async fn get_all_rates(&self) -> Result<HashMap<&'static str, f64>> {
+    |                  ^^^^^^^^^^^^^
+...
+196 |     fn get_moscow_time(&self) -> DateTime<FixedOffset> {
+    |        ^^^^^^^^^^^^^^^
+
+warning: multiple methods are never used
+   --> src/bybit/p2p_python.rs:57:18
+    |
+21  | impl BybitP2PClient {
+    | ------------------- methods in this implementation
+...
+57  |     pub async fn get_server_time(&self) -> Result<i64> {
+    |                  ^^^^^^^^^^^^^^^
+...
+121 |     pub async fn get_my_advertisements(&self) -> Result<Vec<Advertisement>> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^
+...
+133 |     pub async fn get_all_my_advertisements(&self) -> Result<Vec<Advertisement>> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+138 |     pub async fn get_active_advertisements(&self) -> Result<Vec<Advertisement>> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+161 |     pub async fn get_advertisement_orders(&self, ad_id: &str) -> Result<Vec<P2POrder>> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+174 |     pub async fn get_all_order_chats(&self, ad_id: &str) -> Result<Vec<OrderChat>> {
+    |                  ^^^^^^^^^^^^^^^^^^^
+...
+200 |     pub async fn delete_advertisement(&self, ad_id: &str) -> Result<()> {
+    |                  ^^^^^^^^^^^^^^^^^^^^
+...
+208 |     pub async fn create_order(&self, ad_id: &str, amount: &str) -> Result<P2POrder> {
+    |                  ^^^^^^^^^^^^
+...
+216 |     pub async fn confirm_payment_sent(&self, order_id: &str) -> Result<()> {
+    |                  ^^^^^^^^^^^^^^^^^^^^
+...
+224 |     pub async fn confirm_payment_received(&self, order_id: &str) -> Result<()> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+232 |     pub async fn release_order(&self, order_id: &str) -> Result<()> {
+    |                  ^^^^^^^^^^^^^
+...
+240 |     pub async fn appeal_order(&self, order_id: &str, reason: &str) -> Result<()> {
+    |                  ^^^^^^^^^^^^
+...
+248 |     pub async fn monitor_order_status(&self, order_id: &str) -> Result<P2POrder> {
+    |                  ^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `SYSTEM_PROMPT` is never used
+ --> src/ai/prompts.rs:1:11
+  |
+1 | pub const SYSTEM_PROMPT: &str = r#"
+  |           ^^^^^^^^^^^^^
+
+warning: method `process_receipt` is never used
+  --> src/ocr/processor.rs:11:18
+   |
+6  | impl ReceiptProcessor {
+   | --------------------- method in this implementation
+...
+11 |     pub async fn process_receipt(&self, _image_data: &[u8], expected_amount: Decimal) -> Result<ReceiptData> {
+   |                  ^^^^^^^^^^^^^^^
+
+warning: struct `ReceiptData` is never constructed
+  --> src/ocr/processor.rs:24:12
+   |
+24 | pub struct ReceiptData {
+   |            ^^^^^^^^^^^
+   |
+   = note: `ReceiptData` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: function `validate_tbank_receipt` is never used
+ --> src/ocr/validators.rs:3:8
+  |
+3 | pub fn validate_tbank_receipt(text: &str) -> bool {
+  |        ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `extract_amount` is never used
+ --> src/ocr/validators.rs:7:8
+  |
+7 | pub fn extract_amount(text: &str) -> Option<Decimal> {
+  |        ^^^^^^^^^^^^^^
+
+warning: struct `ReceiptInfo` is never constructed
+  --> src/ocr/pdf.rs:23:12
+   |
+23 | pub struct ReceiptInfo {
+   |            ^^^^^^^^^^^
+   |
+   = note: `ReceiptInfo` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: struct `PdfReceiptParser` is never constructed
+  --> src/ocr/pdf.rs:36:12
+   |
+36 | pub struct PdfReceiptParser;
+   |            ^^^^^^^^^^^^^^^^
+
+warning: multiple associated items are never used
+   --> src/ocr/pdf.rs:39:12
+    |
+38  | impl PdfReceiptParser {
+    | --------------------- associated items in this implementation
+39  |     pub fn new() -> Self {
+    |            ^^^
+...
+43  |     pub async fn parse_receipt<P: AsRef<Path>>(&self, pdf_path: P) -> Result<ReceiptInfo> {
+    |                  ^^^^^^^^^^^^^
+...
+53  |     fn extract_text_from_pdf(&self, path: &Path) -> Result<String> {
+    |        ^^^^^^^^^^^^^^^^^^^^^
+...
+64  |     fn extract_with_lopdf(&self, path: &Path) -> Result<String> {
+    |        ^^^^^^^^^^^^^^^^^^
+...
+84  |     fn parse_receipt_text(&self, text: &str) -> Result<ReceiptInfo> {
+    |        ^^^^^^^^^^^^^^^^^^
+...
+119 |     fn normalize_text(&self, text: &str) -> String {
+    |        ^^^^^^^^^^^^^^
+...
+129 |     fn extract_amount(&self, text: &str) -> Result<Decimal> {
+    |        ^^^^^^^^^^^^^^
+...
+157 |     fn extract_datetime(&self, text: &str) -> Option<DateTime<Utc>> {
+    |        ^^^^^^^^^^^^^^^^
+...
+192 |     fn extract_transaction_id(&self, text: &str) -> Option<String> {
+    |        ^^^^^^^^^^^^^^^^^^^^^^
+...
+198 |     fn extract_bank_name(&self, text: &str) -> Option<String> {
+    |        ^^^^^^^^^^^^^^^^^
+...
+224 |     fn extract_recipient(&self, text: &str) -> Option<String> {
+    |        ^^^^^^^^^^^^^^^^^
+...
+230 |     fn extract_sender(&self, text: &str) -> Option<String> {
+    |        ^^^^^^^^^^^^^^
+...
+236 |     fn extract_card_number(&self, text: &str) -> Option<String> {
+    |        ^^^^^^^^^^^^^^^^^^^
+...
+242 |     fn extract_phone_number(&self, text: &str) -> Option<String> {
+    |        ^^^^^^^^^^^^^^^^^^^^
+...
+253 |     fn extract_status(&self, text: &str) -> Option<String> {
+    |        ^^^^^^^^^^^^^^
+
+warning: struct `ImapClient` is never constructed
+ --> src/email/imap_client.rs:3:12
+  |
+3 | pub struct ImapClient;
+  |            ^^^^^^^^^^
+
+warning: associated function `new` is never used
+ --> src/email/imap_client.rs:6:12
+  |
+5 | impl ImapClient {
+  | --------------- associated function in this implementation
+6 |     pub fn new() -> Self {
+  |            ^^^
+
+warning: function `parse_email_body` is never used
+ --> src/email/parser.rs:1:8
+  |
+1 | pub fn parse_email_body(body: &str) -> Option<Vec<u8>> {
+  |        ^^^^^^^^^^^^^^^^
+
+warning: methods `save_gate_account_cookies`, `decrement_bybit_active_ads`, `update_pool_status`, `add_conversation_message`, `get_conversation`, and `save_email_receipt` are never used
+   --> src/db/repository_runtime.rs:88:18
+    |
+14  | impl Repository {
+    | --------------- methods in this implementation
+...
+88  |     pub async fn save_gate_account_cookies(&self, email: &str, cookies: serde_json::Value) -> Result<()> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+134 |     pub async fn decrement_bybit_active_ads(&self, account_id: i32) -> Result<()> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+355 |     pub async fn update_pool_status(&self, pool_id: i32, status: &str) -> Result<()> {
+    |                  ^^^^^^^^^^^^^^^^^^
+...
+383 |     pub async fn add_conversation_message(
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^
+...
+401 |     pub async fn get_conversation(&self, order_id: Uuid) -> Result<Option<AIConversation>> {
+    |                  ^^^^^^^^^^^^^^^^
+...
+418 |     pub async fn save_email_receipt(&self, receipt: EmailReceipt) -> Result<()> {
+    |                  ^^^^^^^^^^^^^^^^^^
+
+warning: variant `Completed` is never constructed
+  --> src/db/pool_manager.rs:16:5
+   |
+11 | pub enum PoolType {
+   |          -------- variant in this enum
+...
+16 |     Completed,
+   |     ^^^^^^^^^
+   |
+   = note: `PoolType` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: methods `get_pending_orders` and `cleanup_completed_pools` are never used
+   --> src/db/pool_manager.rs:60:18
+    |
+35  | impl PoolManager {
+    | ---------------- methods in this implementation
+...
+60  |     pub async fn get_pending_orders(&self) -> Result<Vec<Order>> {
+    |                  ^^^^^^^^^^^^^^^^^^
+...
+128 |     pub async fn cleanup_completed_pools(&self, days_to_keep: i64) -> Result<u64> {
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+ --> src/bin/get_gmail_auth_url.rs:8:9
+  |
+8 |     let mut client = GmailClient::new_for_oauth("gmail/credentials.json").await?;
+  |         ----^^^^^^
+  |         |
+  |         help: remove this `mut`
+  |
+  = note: `#[warn(unused_mut)]` on by default
+
+warning: `itrader-backend` (bin "itrader-backend") generated 92 warnings (36 duplicates) (run `cargo fix --bin "itrader-backend"` to apply 8 suggestions)
+warning: `itrader-backend` (bin "get_gmail_auth_url") generated 1 warning (run `cargo fix --bin "get_gmail_auth_url"` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.34s
+     Running tests/transaction_receipt_comparison_test.rs (target/debug/deps/transaction_receipt_comparison_test-e32c77388d7fb02b)
+
+running 1 test
+test test_compare_transaction_with_receipt ... 
+thread 'test_compare_transaction_with_receipt' panicked at tests/transaction_receipt_comparison_test.rs:42:10:
+Failed to compare transaction with receipt: "Transaction 2463024 not found"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    test_compare_transaction_with_receipt
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 3 filtered out; finished in 1.10s
+
+error: test failed, to rerun pass `--test transaction_receipt_comparison_test`

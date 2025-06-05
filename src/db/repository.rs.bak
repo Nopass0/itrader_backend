@@ -1,0 +1,374 @@
+use sqlx::{PgPool, postgres::PgPoolOptions};
+use tracing::{info, error};
+use chrono::Utc;
+use uuid::Uuid;
+use rust_decimal::Decimal;
+
+use crate::utils::error::{AppError, Result};
+use crate::core::config::DatabaseConfig;
+use super::models::*;
+
+pub struct Repository {
+    pool: PgPool,
+}
+
+impl Repository {
+    pub async fn new(config: &DatabaseConfig) -> Result<Self> {
+        let pool = PgPoolOptions::new()
+            .max_connections(config.max_connections)
+            .min_connections(config.min_connections)
+            .connect(&config.url)
+            .await
+            .map_err(|e| AppError::Database(e))?;
+
+        info!("Database connection pool created");
+        
+        Ok(Self { pool })
+    }
+
+    // Gate Account methods
+    pub async fn get_all_gate_accounts(&self) -> Result<Vec<GateAccount>> {
+        let accounts = sqlx::query_as!(
+            GateAccount,
+            "SELECT * FROM gate_accounts ORDER BY created_at"
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(accounts)
+    }
+
+    pub async fn get_active_gate_accounts(&self) -> Result<Vec<GateAccount>> {
+        let accounts = sqlx::query_as!(
+            GateAccount,
+            "SELECT * FROM gate_accounts WHERE status = 'active' ORDER BY created_at"
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(accounts)
+    }
+
+    pub async fn update_gate_account_status(&self, email: &str, status: &str) -> Result<()> {
+        sqlx::query!(
+            "UPDATE gate_accounts SET status = $1, updated_at = NOW() WHERE email = $2",
+            status,
+            email
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    pub async fn update_gate_account_last_auth(&self, email: &str) -> Result<()> {
+        sqlx::query!(
+            "UPDATE gate_accounts SET last_auth = NOW(), updated_at = NOW() WHERE email = $1",
+            email
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    pub async fn save_gate_account_cookies(&self, email: &str, cookies: serde_json::Value) -> Result<()> {
+        sqlx::query!(
+            "UPDATE gate_accounts SET cookies = $1, updated_at = NOW() WHERE email = $2",
+            cookies,
+            email
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    // Bybit Account methods
+    pub async fn get_available_bybit_account(&self) -> Result<Option<BybitAccount>> {
+        let account = sqlx::query_as!(
+            BybitAccount,
+            r#"
+            SELECT * FROM bybit_accounts 
+            WHERE status = 'available' AND active_ads < 2 
+            ORDER BY active_ads ASC, updated_at ASC 
+            LIMIT 1
+            "#
+        )
+        .fetch_optional(&self.pool)
+        .await?;
+
+        Ok(account)
+    }
+
+    pub async fn increment_bybit_active_ads(&self, account_id: i32) -> Result<()> {
+        sqlx::query!(
+            r#"
+            UPDATE bybit_accounts 
+            SET active_ads = active_ads + 1, updated_at = NOW() 
+            WHERE id = $1
+            "#,
+            account_id
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    pub async fn decrement_bybit_active_ads(&self, account_id: i32) -> Result<()> {
+        sqlx::query!(
+            r#"
+            UPDATE bybit_accounts 
+            SET active_ads = GREATEST(active_ads - 1, 0), updated_at = NOW() 
+            WHERE id = $1
+            "#,
+            account_id
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    // Order methods
+    pub async fn create_order(&self, order: &Order) -> Result<Order> {
+        let result = sqlx::query_as!(
+            Order,
+            r#"
+            INSERT INTO orders (
+                id, gate_transaction_id, bybit_order_id, gate_account_id, 
+                bybit_account_id, amount, currency, fiat_currency, rate, 
+                total_fiat, status, metadata
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            RETURNING *
+            "#,
+            order.id,
+            order.gate_transaction_id,
+            order.bybit_order_id,
+            order.gate_account_id,
+            order.bybit_account_id,
+            order.amount,
+            order.currency,
+            order.fiat_currency,
+            order.rate,
+            order.total_fiat,
+            order.status,
+            order.metadata
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        Ok(result)
+    }
+
+    pub async fn update_order_status(&self, order_id: Uuid, status: &str) -> Result<()> {
+        let completed_at = if status == "completed" {
+            Some(Utc::now())
+        } else {
+            None
+        };
+
+        sqlx::query!(
+            r#"
+            UPDATE orders 
+            SET status = $1, updated_at = NOW(), completed_at = $2 
+            WHERE id = $3
+            "#,
+            status,
+            completed_at,
+            order_id
+        )
+        .execute(&self.pool)
+        .await?;
+
+        // Also record in status history
+        sqlx::query!(
+            r#"
+            INSERT INTO order_status_history (order_id, status, details)
+            VALUES ($1, $2, $3)
+            "#,
+            order_id,
+            status,
+            serde_json::json!({})
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    pub async fn update_order_bybit_id(&self, order_id: Uuid, bybit_order_id: &str) -> Result<()> {
+        sqlx::query!(
+            r#"
+            UPDATE orders 
+            SET bybit_order_id = $1, updated_at = NOW() 
+            WHERE id = $2
+            "#,
+            bybit_order_id,
+            order_id
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    pub async fn get_order_by_id(&self, order_id: Uuid) -> Result<Option<Order>> {
+        let order = sqlx::query_as!(
+            Order,
+            "SELECT * FROM orders WHERE id = $1",
+            order_id
+        )
+        .fetch_optional(&self.pool)
+        .await?;
+
+        Ok(order)
+    }
+
+    pub async fn get_order_by_gate_tx_id(&self, gate_tx_id: &str) -> Result<Option<Order>> {
+        let order = sqlx::query_as!(
+            Order,
+            "SELECT * FROM orders WHERE gate_transaction_id = $1",
+            gate_tx_id
+        )
+        .fetch_optional(&self.pool)
+        .await?;
+
+        Ok(order)
+    }
+
+    pub async fn get_active_orders(&self) -> Result<Vec<Order>> {
+        let orders = sqlx::query_as!(
+            Order,
+            r#"
+            SELECT * FROM orders 
+            WHERE status IN ('pending', 'accepted', 'advertised', 'buyer_found', 'chatting', 'payment_received')
+            ORDER BY created_at
+            "#
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(orders)
+    }
+
+    // Pool methods
+    pub async fn add_to_pool(&self, pool_type: &str, order_id: Uuid, data: serde_json::Value) -> Result<()> {
+        sqlx::query!(
+            r#"
+            INSERT INTO order_pools (pool_type, order_id, data, status)
+            VALUES ($1, $2, $3, 'active')
+            "#,
+            pool_type,
+            order_id,
+            data
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    pub async fn get_pool_orders(&self, pool_type: &str) -> Result<Vec<OrderPool>> {
+        let pools = sqlx::query_as!(
+            OrderPool,
+            r#"
+            SELECT * FROM order_pools 
+            WHERE pool_type = $1 AND status = 'active' 
+            ORDER BY created_at
+            "#,
+            pool_type
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(pools)
+    }
+
+    pub async fn update_pool_status(&self, pool_id: i32, status: &str) -> Result<()> {
+        sqlx::query!(
+            r#"
+            UPDATE order_pools 
+            SET status = $1, updated_at = NOW() 
+            WHERE id = $2
+            "#,
+            status,
+            pool_id
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    // AI Conversation methods
+    pub async fn create_conversation(&self, order_id: Uuid) -> Result<i32> {
+        let result = sqlx::query!(
+            r#"
+            INSERT INTO ai_conversations (order_id, messages)
+            VALUES ($1, '[]'::jsonb)
+            RETURNING id
+            "#,
+            order_id
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        Ok(result.id)
+    }
+
+    pub async fn add_conversation_message(
+        &self, 
+        order_id: Uuid, 
+        message: serde_json::Value
+    ) -> Result<()> {
+        sqlx::query!(
+            r#"
+            UPDATE ai_conversations 
+            SET messages = messages || $1::jsonb, updated_at = NOW() 
+            WHERE order_id = $2
+            "#,
+            message,
+            order_id
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    pub async fn get_conversation(&self, order_id: Uuid) -> Result<Option<AIConversation>> {
+        let conversation = sqlx::query_as!(
+            AIConversation,
+            "SELECT * FROM ai_conversations WHERE order_id = $1",
+            order_id
+        )
+        .fetch_optional(&self.pool)
+        .await?;
+
+        Ok(conversation)
+    }
+
+    // Email Receipt methods
+    pub async fn save_email_receipt(&self, receipt: EmailReceipt) -> Result<()> {
+        sqlx::query!(
+            r#"
+            INSERT INTO email_receipts (
+                order_id, email_from, email_subject, receipt_data, 
+                ocr_result, is_valid
+            ) VALUES ($1, $2, $3, $4, $5, $6)
+            "#,
+            receipt.order_id,
+            receipt.email_from,
+            receipt.email_subject,
+            receipt.receipt_data,
+            receipt.ocr_result,
+            receipt.is_valid
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+}

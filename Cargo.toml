@@ -1,0 +1,143 @@
+[package]
+name = "itrader-backend"
+version = "0.1.0"
+edition = "2021"
+default-run = "itrader-backend"
+
+[[bin]]
+name = "parse_receipt"
+path = "src/bin/parse_receipt.rs"
+
+[[bin]]
+name = "compare_transaction_receipt"
+path = "src/bin/compare_transaction_receipt.rs"
+
+[[bin]]
+name = "manage_accounts"
+path = "src/bin/manage_accounts.rs"
+
+[features]
+default = []
+python-sdk = []
+
+[dependencies]
+# Async Runtime
+tokio = { version = "1.35", features = ["full"] }
+tokio-util = { version = "0.7", features = ["compat"] }
+
+# Web Framework
+axum = { version = "0.7", features = ["ws", "json"] }
+
+# Database
+sqlx = { version = "0.7", features = [
+    "runtime-tokio-rustls",
+    "postgres",
+    "json",
+    "chrono",
+    "uuid",
+    "rust_decimal",
+] }
+
+# Cache
+redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
+
+# HTTP Client
+reqwest = { version = "0.11", features = [
+    "json",
+    "cookies",
+    "gzip",
+    "rustls-tls",
+] }
+reqwest-middleware = "0.2"
+
+# WebSocket
+tokio-tungstenite = { version = "0.21", features = ["rustls-tls-webpki-roots"] }
+
+# Authentication
+jsonwebtoken = "9.2"
+hmac = "0.12"
+sha2 = "0.10"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# Rate Limiting
+governor = "0.6"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Email
+imap = "3.0.0-alpha.13"
+mail-parser = "0.9"
+async-imap = "0.9"
+async-native-tls = "0.5"
+
+# OCR
+# tesseract = "0.15"  # Uncomment after installing libtesseract-dev and libleptonica-dev
+
+# PDF Processing
+pdf-extract = "0.7"
+lopdf = "0.31"
+
+# AI
+async-openai = "0.18"
+
+# Utilities
+anyhow = "1.0"
+thiserror = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+chrono-tz = "0.8"
+uuid = { version = "1.6", features = ["v4", "serde"] }
+config = "0.13"
+dotenv = "0.15"
+
+# Encryption
+aes-gcm = "0.10"
+argon2 = "0.5"
+
+# Additional dependencies for development
+async-trait = "0.1"
+futures = "0.3"
+once_cell = "1.19"
+parking_lot = "0.12"
+rand = "0.8"
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+
+# Additional required dependencies
+rust_decimal = { version = "1.32", features = ["serde"] }
+hex = "0.4"
+base64 = "0.21"
+lazy_static = "1.4"
+prometheus = { version = "0.13", features = ["process"] }
+regex = "1.10"
+serde_urlencoded = "0.7"
+tempfile = "3.8"
+
+# Python integration
+pyo3 = { version = "0.20", features = ["auto-initialize", "abi3-py39"] }
+pyo3-asyncio = { version = "0.20", features = ["tokio-runtime"] }
+
+# CLI tools
+clap = { version = "4.4", features = ["derive"] }
+colored = "2.1"
+
+[dev-dependencies]
+wiremock = "0.5"
+proptest = "1.4"
+pretty_assertions = "1.4"
+serial_test = "3.0"
+tempfile = "3.8"
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1

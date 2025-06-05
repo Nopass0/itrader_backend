@@ -1,0 +1,62 @@
+[server]
+host = "127.0.0.1"
+port = 8081
+
+[database]
+url = "${DATABASE_URL}"
+max_connections = 5
+min_connections = 1
+
+[redis]
+url = "${REDIS_URL}"
+pool_size = 5
+
+[gate]
+# Real Gate.io API endpoints - all use panel.gate.cx/api/v1
+base_url = "https://panel.gate.cx/api/v1"
+p2p_url = "https://panel.gate.cx/api/v1"
+panel_url = "https://panel.gate.cx/api/v1"
+session_refresh_interval = 1500
+balance_check_interval = 60
+target_balance = 1000000
+min_balance = 300000
+request_timeout = 30
+shutdown_balance = 0
+
+[bybit]
+# Real Bybit API endpoints
+rest_url = "https://api.bybit.com"
+ws_url = "wss://stream.bybit.com"
+p2p_api_version = "v5"
+max_ads_per_account = 2
+
+[ai]
+openrouter_api_key = "${OPENROUTER_API_KEY}"
+model = "anthropic/claude-3-sonnet"
+max_tokens = 1000
+temperature = 0.7
+response_delay_min = 15
+response_delay_max = 45
+
+[rate_limits]
+gate_requests_per_minute = 20  # Lower for testing
+bybit_requests_per_minute = 30 # Lower for testing
+default_burst_size = 5
+
+[email]
+imap_server = "imap.gmail.com"
+imap_port = 993
+email = "${EMAIL_ADDRESS}"
+password = "${EMAIL_PASSWORD}"
+check_interval = 30
+
+[ocr]
+tesseract_lang = "eng+rus"
+confidence_threshold = 80
+
+[monitoring]
+metrics_port = 9091
+health_check_interval = 30
+
+[auto_trader]
+admin_token = "dev-token-123"

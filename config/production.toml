@@ -1,0 +1,23 @@
+[server]
+host = "0.0.0.0"
+port = 8080
+
+[database]
+max_connections = 50
+min_connections = 10
+
+[redis]
+pool_size = 50
+
+[gate]
+session_refresh_interval = 1200  # 20 minutes for production
+balance_check_interval = 30      # More frequent in production
+
+[rate_limits]
+gate_requests_per_minute = 50
+bybit_requests_per_minute = 100
+default_burst_size = 20
+
+[monitoring]
+metrics_port = 9090
+health_check_interval = 10  # More frequent health checks in production
