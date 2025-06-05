@@ -60,10 +60,12 @@ list_gate_accounts() {
         status=${status:-"unknown"}
         last_auth=${last_auth:-"Never"}
         
+        # Convert balance to proper format (handle decimal separator)
+        balance_formatted=$(echo "$balance" | tr ',' '.')
         printf "  %3d | %-30s | %14.2f | %-8s | %s\n" \
             "$id" \
             "$email" \
-            "$balance" \
+            "$balance_formatted" \
             "$status" \
             "$last_auth"
     done
@@ -122,6 +124,14 @@ add_gate_account() {
     echo -e "\n${CYAN}=== Add Gate.io Account ===${NC}"
     
     read -p "Email: " email
+    
+    # Check if email already exists
+    existing=$(psql "$DB_URL" -t -c "SELECT COUNT(*) FROM gate_accounts WHERE email='$email'" | tr -d ' ')
+    if [ "$existing" -gt 0 ]; then
+        echo -e "${RED}❌ Account with email $email already exists${NC}"
+        return
+    fi
+    
     read -s -p "Password: " password
     echo
     read -p "Initial balance (RUB) [10000000]: " balance
@@ -148,6 +158,14 @@ add_bybit_account() {
     echo -e "\n${CYAN}=== Add Bybit Account ===${NC}"
     
     read -p "Account name: " account_name
+    
+    # Check if account name already exists
+    existing=$(psql "$DB_URL" -t -c "SELECT COUNT(*) FROM bybit_accounts WHERE account_name='$account_name'" | tr -d ' ')
+    if [ "$existing" -gt 0 ]; then
+        echo -e "${RED}❌ Account with name $account_name already exists${NC}"
+        return
+    fi
+    
     read -p "API Key: " api_key
     read -s -p "API Secret: " api_secret
     echo
