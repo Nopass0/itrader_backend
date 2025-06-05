@@ -4,18 +4,30 @@ click>=8.1.0
 colorama>=0.4.6
 python-dotenv==1.0.0
 toml>=0.10.2
+rich>=13.7.0
+requests>=2.31.0
+urllib3>=2.1.0
 
 # Bybit SDK
 pybit==5.11.0
 
+# Google APIs
+google-api-python-client>=2.108.0
+google-auth-httplib2>=0.1.1
+google-auth-oauthlib>=1.1.0
+
 # Email processing
 PyPDF2>=3.0.0
+
+# OCR dependencies
+pytesseract>=0.3.10
+pdf2image>=1.16.3
+Pillow>=10.1.0
 
 # Cryptography
 pycryptodome==3.23.0
 
-# Database (optional, for future use)
-aiosqlite>=0.19.0
+# Database
 psycopg2-binary>=2.9.9
 
 # OCR (optional)

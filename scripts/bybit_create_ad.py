@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """
-Simple script to create Bybit P2P ad
-Called from Rust tests with JSON input via stdin
-Returns JSON response via stdout
+Bybit P2P Ad Creation Script
+Uses correct P2P API endpoints with POST requests
+Based on official Bybit P2P API documentation
 """
 
 import sys
 import json
-import os
 import time
 import hmac
 import hashlib
@@ -15,42 +14,51 @@ import requests
 from datetime import datetime
 
 def create_ad(api_key, api_secret, ad_params, testnet=False):
-    """Create P2P ad on Bybit"""
+    """Create P2P ad on Bybit using correct P2P API"""
     try:
+        # Импортируем умный создатель объявлений
+        from bybit_smart_ad_creator import SmartAdCreator
+        
+        # Если включен умный режим, используем SmartAdCreator
+        if ad_params.get("smart_mode", False):
+            creator = SmartAdCreator(api_key, api_secret, testnet)
+            return creator.create_smart_ad(ad_params)
+        
+        # Иначе используем обычную логику
         # Base URL for API
         base_url = "https://api-testnet.bybit.com" if testnet else "https://api.bybit.com"
         endpoint = "/v5/p2p/item/create"
         url = base_url + endpoint
 
-        # Required parameters for P2P ad creation
+        # Required parameters for P2P ad creation based on official docs
         params = {
             "tokenId": ad_params.get("tokenId", "USDT"),
             "currencyId": ad_params.get("currency", ad_params.get("currencyId", "RUB")),
             "side": str(ad_params.get("side", "0")),  # "0" for buy, "1" for sell
             "priceType": "0",  # Fixed rate
-            "premium": "",
+            "premium": "",  # Empty for fixed rate
             "price": str(ad_params.get("price", "98.50")),
             "minAmount": str(ad_params.get("min_amount", ad_params.get("minAmount", "1000"))),
             "maxAmount": str(ad_params.get("max_amount", ad_params.get("maxAmount", "100000"))),
             "remark": ad_params.get("remarks", ad_params.get("remark", "Fast trade")),
-            "tradingPreferenceSet": {
-                "hasUnPostAd": 0,
-                "isKyc": 0,
-                "isEmail": 0,
-                "isMobile": 0,
-                "hasRegisterTime": 0,
-                "registerTimeThreshold": 0,
-                "orderFinishNumberDay30": 0,
+            "tradingPreferenceSet": ad_params.get("tradingPreferenceSet", {
+                "hasUnPostAd": "0",
+                "isKyc": "0",
+                "isEmail": "0", 
+                "isMobile": "0",
+                "hasRegisterTime": "0",
+                "registerTimeThreshold": "0",
+                "orderFinishNumberDay30": "0",
                 "completeRateDay30": "0",
                 "nationalLimit": "",
-                "hasOrderFinishNumberDay30": 0,
-                "hasCompleteRateDay30": 0,
-                "hasNationalLimit": 0
-            },
-            "paymentIds": ad_params.get("payment_methods", ["582"]),
+                "hasOrderFinishNumberDay30": "0",
+                "hasCompleteRateDay30": "0",
+                "hasNationalLimit": "0"
+            }),
+            "paymentIds": ad_params.get("payment_methods", ad_params.get("paymentIds", ["582"])),  # Array of payment method IDs
             "quantity": str(ad_params.get("quantity", "10")),
-            "paymentPeriod": "15",
-            "itemType": "ORIGIN"
+            "paymentPeriod": str(ad_params.get("paymentPeriod", "15")),  # 15 minutes payment period
+            "itemType": ad_params.get("itemType", "ORIGIN")  # Original P2P advertisement
         }
 
         # Generate authentication headers according to Bybit v5 API docs
@@ -58,7 +66,7 @@ def create_ad(api_key, api_secret, ad_params, testnet=False):
         recv_window = "5000"
         
         # For POST requests with JSON body: timestamp + api_key + recv_window + json_body
-        param_str = json.dumps(params, separators=(',', ':'))
+        param_str = json.dumps(params, separators=(',', ':'), sort_keys=True)
         sign_str = timestamp + api_key + recv_window + param_str
         
         signature = hmac.new(
@@ -76,46 +84,63 @@ def create_ad(api_key, api_secret, ad_params, testnet=False):
             "Content-Type": "application/json"
         }
 
-        # Make request
-        response = requests.post(url, json=params, headers=headers)
+        # Make POST request with raw string data (not json parameter)
+        response = requests.post(url, data=param_str, headers=headers)
 
         # Debug response
         if response.status_code != 200:
             return {
-                "retCode": -1,
-                "retMsg": f"HTTP {response.status_code}: {response.text}",
+                "ret_code": -1,
+                "ret_msg": f"HTTP {response.status_code}: {response.text}",
                 "result": None
             }
 
         # Parse response
         try:
             result = response.json()
-            # Check if it was successful
-            if result.get("retCode") == 0:
+            
+            # P2P API uses ret_code instead of retCode
+            ret_code = result.get("ret_code", -1)
+            ret_msg = result.get("ret_msg", "Unknown error")
+            
+            if ret_code == 0:
+                # Success response
+                result_data = result.get("result", {})
                 return {
-                    "retCode": 0,
-                    "retMsg": "OK",
+                    "ret_code": 0,
+                    "ret_msg": "SUCCESS",
                     "result": {
-                        "adId": result.get("result", {}).get("itemId", f"AD_{int(time.time())}"),
+                        "itemId": result_data.get("itemId", f"AD_{int(time.time())}"),
                         "status": "online",
-                        "createdTime": datetime.utcnow().isoformat() + "Z"
+                        "createdTime": datetime.utcnow().isoformat() + "Z",
+                        "securityRiskToken": result_data.get("securityRiskToken", ""),
+                        "needSecurityRisk": result_data.get("needSecurityRisk", False)
                     },
-                    "retExtInfo": result.get("retExtInfo", {}),
-                    "time": result.get("time", int(time.time() * 1000))
+                    "ext_code": result.get("ext_code", ""),
+                    "ext_info": result.get("ext_info", {}),
+                    "time_now": result.get("time_now", str(time.time()))
                 }
             else:
-                return result
+                # Error response
+                return {
+                    "ret_code": ret_code,
+                    "ret_msg": ret_msg,
+                    "result": result.get("result"),
+                    "ext_code": result.get("ext_code", ""),
+                    "ext_info": result.get("ext_info", {})
+                }
+                
         except Exception as e:
             return {
-                "retCode": -1,
-                "retMsg": f"JSON parse error: {str(e)}",
+                "ret_code": -1,
+                "ret_msg": f"JSON parse error: {str(e)}",
                 "result": None
             }
 
     except Exception as e:
         return {
-            "retCode": -1,
-            "retMsg": f"Error creating ad: {str(e)}",
+            "ret_code": -1,
+            "ret_msg": f"Error creating ad: {str(e)}",
             "result": None
         }
 
@@ -139,8 +164,8 @@ def main():
         
     except Exception as e:
         error_result = {
-            "retCode": -1,
-            "retMsg": f"Script error: {str(e)}",
+            "ret_code": -1,
+            "ret_msg": f"Script error: {str(e)}",
             "result": None
         }
         print(json.dumps(error_result))

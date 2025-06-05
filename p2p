@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+"""
+P2P Trading System - Quick CLI
+Usage: ./p2p [command]
+"""
+
+import sys
+import os
+import subprocess
+
+# Add project to path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from src.main_launcher import P2PSystemLauncher
+from rich.console import Console
+
+console = Console()
+
+def show_help():
+    """Show help message"""
+    console.print("""
+[bold cyan]P2P Trading System CLI[/bold cyan]
+
+[bold]Usage:[/bold] ./p2p [command]
+
+[bold]Commands:[/bold]
+  start         - Start with menu (default)
+  auto          - Start in automatic mode
+  manual        - Start in manual mode  
+  test          - Run test mode (single transaction)
+  accounts      - Manage accounts
+  gmail         - Setup Gmail
+  history       - View transaction history
+  help          - Show this help
+
+[bold]Examples:[/bold]
+  ./p2p                 # Start with menu
+  ./p2p auto           # Start automatic mode
+  ./p2p accounts       # Manage accounts
+""")
+
+def main():
+    """Main entry point"""
+    if len(sys.argv) < 2:
+        # No arguments - run full launcher
+        launcher = P2PSystemLauncher()
+        launcher.run()
+        return
+    
+    command = sys.argv[1].lower()
+    launcher = P2PSystemLauncher()
+    
+    if command == "help" or command == "-h" or command == "--help":
+        show_help()
+    elif command == "start":
+        launcher.run()
+    elif command == "auto":
+        launcher.start_monitoring(auto_mode=True)
+    elif command == "manual":
+        launcher.start_monitoring(auto_mode=False)
+    elif command == "test":
+        launcher.test_mode()
+    elif command == "accounts":
+        launcher.account_menu.run()
+    elif command == "gmail":
+        launcher.setup_gmail()
+    elif command == "history":
+        launcher.view_history()
+    else:
+        console.print(f"[red]Unknown command: {command}[/red]")
+        show_help()
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Interrupted[/yellow]")
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        sys.exit(1)

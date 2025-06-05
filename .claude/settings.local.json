@@ -122,7 +122,11 @@
       "Bash(PGPASSWORD=root psql -U postgres -d itrader -f /home/user/projects/itrader_backend/migrations/009_rename_encrypted_fields.sql)",
       "Bash(cargo:*)",
       "Bash(PGPASSWORD=root psql:*)",
-      "Bash(./install.sh:*)"
+      "Bash(./install.sh:*)",
+      "WebFetch(domain:stackoverflow.com)",
+      "Bash(touch:*)",
+      "Bash(.venv/bin/pip:*)",
+      "Bash(source:*)"
     ],
     "deny": []
   },

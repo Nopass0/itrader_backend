@@ -12,7 +12,20 @@ def test_get_rates():
     """Test rate fetching"""
     print("=== Testing Rate Fetching ===")
 
-    test_data = {"amount_rub": 10000, "testnet": True}
+    # Load real credentials from file
+    try:
+        with open("test_data/bybit_creditials.json", "r") as f:
+            credentials = json.load(f)
+    except FileNotFoundError:
+        print("❌ No credentials file found at test_data/bybit_creditials.json")
+        return False
+
+    test_data = {
+        "amount_rub": 10000, 
+        "testnet": False,  # Use production API with real credentials
+        "api_key": credentials["api_key"],
+        "api_secret": credentials["api_secret"]
+    }
 
     # Run the script
     result = subprocess.run(
@@ -60,11 +73,11 @@ def test_create_ad():
         "api_secret": credentials["api_secret"],
         "testnet": False,  # Use production API with real credentials
         "ad_params": {
-            "side": "0",  # Sell
-            "currency": "RUB",
-            "price": "98.50",
-            "quantity": "10",
-            "min_amount": "1000",
+            "side": "0",  # Buy USDT for RUB
+            "currency": "RUB", 
+            "price": "90.00",  # Within allowed range 71.42-91.26
+            "quantity": "100",  # 100 USDT * 90 RUB = 9000 RUB total
+            "min_amount": "900",  # Minimum 900 RUB 
             "max_amount": "5000",
             "payment_methods": ["582"],
             "remarks": "Test ad from Python"
@@ -91,10 +104,13 @@ def test_create_ad():
         ret_msg = response.get("retMsg", response.get("ret_msg", "Unknown error"))
 
         if ret_code == 0:
+            # Success with P2P API format (uses ret_code instead of retCode)
             result_data = response.get("result", {})
-            ad_id = result_data.get('adId', result_data.get('itemId', 'Unknown'))
-            print(f"✅ Created ad ID: {ad_id}")
-            print(f"✅ Status: {result_data.get('status', 'created')}")
+            item_id = result_data.get('itemId', result_data.get('adId', 'Unknown'))
+            print(f"✅ Created ad ID: {item_id}")
+            print(f"✅ Status: {result_data.get('status', 'online')}")
+            if result_data.get('needSecurityRisk'):
+                print(f"⚠️  Security risk check required")
             return True
         else:
             print(f"❌ API error code {ret_code}: {ret_msg}")
