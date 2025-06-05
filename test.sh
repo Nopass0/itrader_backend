@@ -39,7 +39,7 @@ if [ ! -f .env.test ]; then
     else
         echo "Creating .env.test with default values..."
         cat > .env.test << EOF
-DATABASE_URL=postgresql://postgres:root@localhost/itrader_test_db
+DATABASE_URL=postgresql://postgres:root@localhost/itrader_test
 DATABASE_MAX_CONNECTIONS=5
 DATABASE_MIN_CONNECTIONS=1
 REDIS_URL=redis://localhost:6379/1
@@ -54,7 +54,7 @@ EOF
 fi
 
 # Set DATABASE_URL for SQLx compile-time checks
-export DATABASE_URL="postgresql://postgres:root@localhost/itrader_test_db"
+export DATABASE_URL="postgresql://postgres:root@localhost/itrader_test"
 
 # Set Bybit URL based on testnet flag
 if [ "$USE_TESTNET" = true ]; then

@@ -39,7 +39,7 @@ if [ ! -f .env ]; then
     echo "⚠️  No .env file found. Creating from example..."
     cat > .env << EOF
 # Database Configuration
-DATABASE_URL=postgresql://postgres:password@localhost/itrader
+DATABASE_URL=postgresql://postgres:root@localhost/itrader
 DATABASE_MAX_CONNECTIONS=10
 DATABASE_MIN_CONNECTIONS=1
 

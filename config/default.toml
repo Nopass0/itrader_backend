@@ -5,7 +5,7 @@ host = "127.0.0.1"
 port = 8080
 
 [database]
-url = "postgres://postgres:password@localhost/itrader"
+url = "postgres://postgres:root@localhost/itrader"
 max_connections = 10
 min_connections = 1
 

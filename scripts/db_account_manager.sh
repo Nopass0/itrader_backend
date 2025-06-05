@@ -12,8 +12,8 @@ CYAN='\033[0;36m'
 PURPLE='\033[0;35m'
 NC='\033[0m'
 
-# Database connection
-DB_URL="${DATABASE_URL:-postgresql://postgres:password@localhost/itrader}"
+# Database connection - use environment variable or default to postgres/root
+DB_URL="${DATABASE_URL:-postgresql://postgres:root@localhost/itrader}"
 
 # Check if psql is available
 check_psql() {
