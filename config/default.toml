@@ -70,3 +70,4 @@ max_concurrent_orders = 5
 interactive_mode = true
 
 admin_token = "dev-token-123"
+use_db_storage = true

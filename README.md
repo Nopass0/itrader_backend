@@ -31,7 +31,10 @@ cp .env.example .env
 
 ### Core Components
 - **Gate.io Integration**: Monitors and processes P2P transactions
-- **Bybit Integration**: Creates corresponding sell advertisements
+- **Bybit Integration**: Creates corresponding sell advertisements using official Bybit P2P SDK
+  - Uses Rust-to-Python bridge (PyO3) for seamless integration
+  - Leverages official Bybit Python SDK for P2P operations
+  - Maintains type safety and error handling across language boundaries
 - **Transaction Pipeline**: Gate → Accept → Calculate Rate → Create Bybit Ad
 - **Account Management**: Multi-account support with JSON storage
 - **WebSocket API**: Real-time monitoring and control
@@ -228,6 +231,40 @@ Before committing:
 - [ ] No hardcoded values
 - [ ] Configuration is documented
 - [ ] Breaking changes noted
+
+## Bybit P2P Integration
+
+### Python Bridge Architecture
+
+The Bybit integration uses a Rust-to-Python bridge to leverage the official Bybit P2P SDK:
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Rust Code     │────▶│   PyO3 Bridge   │────▶│  Bybit Python   │
+│  (Type Safe)    │     │   (FFI Layer)   │     │     SDK         │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+```
+
+#### Key Components:
+- **python_bridge.rs**: Core PyO3 integration managing Python interpreter
+- **p2p_python.rs**: Python-based P2P client implementation
+- **python_rate_fetcher.rs**: Rate fetching using Python SDK
+- **bybit_wrapper.py**: Python wrapper around official Bybit SDK
+
+#### Benefits:
+- Uses official Bybit SDK ensuring compatibility
+- Automatic handling of authentication and signing
+- Built-in rate limiting and retry logic
+- Access to latest P2P features without reimplementation
+
+#### Usage:
+```rust
+// The API remains the same whether using native or Python implementation
+let client = BybitP2PClient::new(config);
+let ads = client.get_advertisements(params).await?;
+```
+
+The implementation is selected at compile time using the `python-sdk` feature flag.
 
 ## Configuration
 

@@ -36,7 +36,6 @@ secrets/
 test_data/*_creditials.json
 test_data/*_credentials.json
 test_data/gate_cookie.json
-gmail/
 test_data/gmail_token.json
 test_data
 db/gmail/token.json

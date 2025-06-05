@@ -14,10 +14,96 @@ NC='\033[0m' # No Color
 # Accounts file path
 ACCOUNTS_FILE="data/accounts.json"
 
+# Function to check if command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Function to check dependencies
+check_dependencies() {
+    local missing_deps=()
+    local warnings=()
+    
+    echo -e "${BLUE}Checking dependencies...${NC}"
+    
+    # Check critical dependencies
+    if ! command_exists cargo; then
+        missing_deps+=("Rust/Cargo")
+    fi
+    
+    if ! command_exists psql; then
+        missing_deps+=("PostgreSQL client")
+    fi
+    
+    if ! command_exists redis-cli; then
+        missing_deps+=("Redis client")
+    fi
+    
+    if ! command_exists python3; then
+        missing_deps+=("Python 3")
+    fi
+    
+    # Check optional dependencies
+    if ! command_exists sqlx; then
+        warnings+=("sqlx-cli (database migrations)")
+    fi
+    
+    if ! command_exists tesseract; then
+        warnings+=("Tesseract OCR (receipt processing)")
+    fi
+    
+    # Check if database is accessible
+    if command_exists psql; then
+        if ! PGPASSWORD=root psql -h localhost -U postgres -d itrader -c '\q' 2>/dev/null; then
+            warnings+=("PostgreSQL connection (check if server is running)")
+        fi
+    fi
+    
+    # Check if Redis is accessible
+    if command_exists redis-cli; then
+        if ! redis-cli ping >/dev/null 2>&1; then
+            warnings+=("Redis connection (check if server is running)")
+        fi
+    fi
+    
+    # Check Python dependencies
+    if command_exists python3; then
+        if ! python3 -c "import pybit" 2>/dev/null; then
+            warnings+=("Python dependencies (run: pip install -r requirements.txt)")
+        fi
+    fi
+    
+    # Report missing critical dependencies
+    if [ ${#missing_deps[@]} -gt 0 ]; then
+        echo -e "${RED}✗ Missing critical dependencies:${NC}"
+        for dep in "${missing_deps[@]}"; do
+            echo -e "  ${RED}• $dep${NC}"
+        done
+        echo
+        echo -e "${YELLOW}Please run './install.sh' to install all dependencies${NC}"
+        exit 1
+    fi
+    
+    # Report warnings
+    if [ ${#warnings[@]} -gt 0 ]; then
+        echo -e "${YELLOW}⚠️  Warnings:${NC}"
+        for warning in "${warnings[@]}"; do
+            echo -e "  ${YELLOW}• $warning${NC}"
+        done
+        echo
+    fi
+    
+    echo -e "${GREEN}✓ All critical dependencies are installed${NC}"
+    echo
+}
+
 echo -e "${CYAN}==================================="
 echo "iTrader Backend Development Server"
 echo -e "===================================${NC}"
 echo
+
+# Check dependencies before proceeding
+check_dependencies
 
 # Check if settings mode
 if [ "$1" == "--settings" ]; then

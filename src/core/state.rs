@@ -8,6 +8,8 @@ use crate::core::config::Config;
 use crate::core::rate_limiter::RateLimiter;
 use crate::core::accounts::AccountManager;
 use crate::core::account_storage::AccountStorage;
+use crate::core::db_account_manager::DbAccountManager;
+use crate::core::db_account_storage::DbAccountStorage;
 use crate::db::{Repository, AccountRepository};
 use crate::gate::client::GateClient;
 use crate::gate::GateAccountManager;
@@ -20,6 +22,8 @@ pub struct AppState {
     pub rate_limiter: Arc<RateLimiter>,
     pub account_manager: Arc<AccountManager>,
     pub account_storage: Arc<AccountStorage>,
+    pub db_account_manager: Arc<DbAccountManager>,
+    pub db_account_storage: Arc<DbAccountStorage>,
     pub gate_manager: Arc<GateAccountManager>,
     pub gate_client: Arc<GateClient>,
     pub bybit_clients: RwLock<HashMap<i32, Arc<BybitP2PClient>>>,
@@ -40,10 +44,12 @@ impl AppState {
         // Create rate limiter
         let rate_limiter = Arc::new(RateLimiter::new(&config.rate_limits));
         
-        // Create account manager
-        let account_manager = Arc::new(AccountManager::new("data/accounts.json").await?);
+        // Create database-backed managers
+        let db_account_manager = Arc::new(DbAccountManager::new(repository.pool.clone()));
+        let db_account_storage = Arc::new(DbAccountStorage::new(repository.pool.clone()));
         
-        // Create account storage
+        // Create file-based managers (for backward compatibility)
+        let account_manager = Arc::new(AccountManager::new("data/accounts.json").await?);
         let account_storage = Arc::new(AccountStorage::new("db"));
         account_storage.init().await?;
         
@@ -68,6 +74,8 @@ impl AppState {
             rate_limiter,
             account_manager,
             account_storage,
+            db_account_manager,
+            db_account_storage,
             gate_manager,
             gate_client,
             bybit_clients: RwLock::new(HashMap::new()),

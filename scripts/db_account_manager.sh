@@ -62,7 +62,7 @@ list_gate_accounts() {
         
         # Convert balance to proper format (handle decimal separator)
         balance_formatted=$(echo "$balance" | tr ',' '.')
-        printf "  %3d | %-30s | %14.2f | %-8s | %s\n" \
+        LC_NUMERIC=C printf "  %3d | %-30s | %14.2f | %-8s | %s\n" \
             "$id" \
             "$email" \
             "$balance_formatted" \
@@ -109,7 +109,7 @@ list_bybit_accounts() {
         status=${status:-"unknown"}
         last_used=${last_used:-"Never"}
         
-        printf "  %3d | %-20s | %-13s | %3d | %-10s | %s\n" \
+        LC_NUMERIC=C printf "  %3d | %-20s | %-13s | %3d | %-10s | %s\n" \
             "$id" \
             "$account_name" \
             "$api_key" \
@@ -285,7 +285,7 @@ show_statistics() {
     
     echo -e "${BLUE}Gate.io Accounts:${NC} $gate_count (Active: $gate_active)"
     echo -e "${BLUE}Bybit Accounts:${NC} $bybit_count (Available: $bybit_available)"
-    echo -e "${BLUE}Total Gate Balance:${NC} $(printf "%'.2f" $total_balance) RUB"
+    echo -e "${BLUE}Total Gate Balance:${NC} $(LC_NUMERIC=C printf "%'.2f" $total_balance) RUB"
     echo -e "${BLUE}Total Active Ads:${NC} $total_ads"
 }
 

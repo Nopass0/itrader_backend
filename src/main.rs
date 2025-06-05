@@ -12,7 +12,7 @@ mod gate;
 mod bybit;
 mod ai;
 mod ocr;
-// mod email;
+mod gmail;
 mod db;
 
 use crate::core::{app::Application, config::Config, account_setup::AccountSetup};

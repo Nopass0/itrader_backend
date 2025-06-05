@@ -5,5 +5,7 @@ pub mod rate_limiter;
 pub mod state;
 pub mod accounts;
 pub mod account_storage;
+pub mod db_account_manager;
+pub mod db_account_storage;
 pub mod auto_trader;
 pub mod account_setup;

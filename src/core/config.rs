@@ -16,6 +16,8 @@ pub struct Config {
     pub monitoring: MonitoringConfig,
     pub auto_trader: AutoTraderConfig,
     pub admin_token: String,
+    #[serde(default = "default_use_db_storage")]
+    pub use_db_storage: bool,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -118,6 +120,10 @@ pub struct AutoTraderConfig {
     pub max_concurrent_orders: usize,
     #[serde(default = "default_interactive_mode")]
     pub interactive_mode: bool,
+}
+
+fn default_use_db_storage() -> bool {
+    true // Default to using database storage
 }
 
 fn default_interactive_mode() -> bool {

@@ -10,7 +10,12 @@ The iTrader backend system automates cryptocurrency trading between Gate.io and 
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │   Gate.io API   │────▶│  iTrader Core   │────▶│  Bybit P2P API  │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
-                               │
+                               │                           │
+                               │                           ▼
+                               │                  ┌─────────────────┐
+                               │                  │  Python Bridge  │
+                               │                  │  (PyO3 + SDK)   │
+                               │                  └─────────────────┘
                                ▼
                     ┌─────────────────────┐
                     │  Email Monitoring   │
@@ -91,7 +96,46 @@ The email monitor will:
 - Extract PDF receipts
 - Process with OCR
 
-### 4. OCR Setup
+### 4. Bybit Python Bridge Setup
+
+The Bybit integration uses PyO3 to bridge Rust with the official Bybit Python SDK:
+
+#### Prerequisites
+
+```bash
+# Install Python 3.8+ and pip
+sudo apt-get install python3 python3-pip python3-dev
+
+# Install Bybit SDK
+pip install pybit
+
+# Install PyO3 dependencies
+pip install maturin
+```
+
+#### Configuration
+
+Enable the Python SDK feature in `Cargo.toml`:
+
+```toml
+[features]
+default = ["python-sdk"]
+python-sdk = ["pyo3", "pyo3-asyncio"]
+
+[dependencies]
+pyo3 = { version = "0.20", features = ["auto-initialize"] }
+pyo3-asyncio = { version = "0.20", features = ["tokio-runtime"] }
+```
+
+#### Python Wrapper
+
+The system uses a Python wrapper (`python_modules/bybit_wrapper.py`) that:
+- Handles authentication with HMAC signing
+- Manages rate limiting
+- Provides async/await compatibility
+- Normalizes responses for Rust consumption
+
+### 5. OCR Setup
 
 Install Tesseract OCR:
 
@@ -106,7 +150,7 @@ brew install tesseract tesseract-lang
 tesseract --version
 ```
 
-### 5. WebSocket Client Integration
+### 6. WebSocket Client Integration
 
 Connect to WebSocket for real-time updates:
 
@@ -133,7 +177,7 @@ ws.onmessage = (event) => {
 };
 ```
 
-### 6. Admin Integration
+### 7. Admin Integration
 
 Use the admin API for manual control:
 

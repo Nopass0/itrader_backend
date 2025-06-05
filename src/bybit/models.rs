@@ -26,15 +26,16 @@ pub struct BybitResponse<T> {
 pub struct AdParams {
     pub asset: String,
     pub fiat: String,
-    pub price: String,
-    pub amount: String,
+    pub side: String,  // "0" for buy, "1" for sell
+    pub price: Decimal,
+    pub amount: Decimal,
     #[serde(rename = "paymentMethods")]
     pub payment_methods: Vec<String>,
     pub remarks: Option<String>,
     #[serde(rename = "minAmount")]
-    pub min_amount: Option<String>,
+    pub min_amount: Decimal,
     #[serde(rename = "maxAmount")]
-    pub max_amount: Option<String>,
+    pub max_amount: Decimal,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -77,17 +78,17 @@ pub struct P2POrder {
     pub seller_id: String,
     pub asset: String,
     pub fiat: String,
-    pub price: Decimal,
-    pub amount: Decimal,
-    #[serde(rename = "totalPrice")]
-    pub total_price: Decimal,
-    pub status: String, // PENDING, PAID, RELEASED, CANCELLED, APPEAL
-    #[serde(rename = "paymentMethod")]
-    pub payment_method: String,
+    pub price: String,
+    pub amount: String,
+    pub status: String, // "10", "20", "30" etc or "PENDING", "PAID", "RELEASED"
+    #[serde(rename = "paymentInfo")]
+    pub payment_info: serde_json::Value,
     #[serde(rename = "createdAt")]
-    pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
-    pub updated_at: DateTime<Utc>,
+    pub created_at: String,
+    #[serde(rename = "paidAt")]
+    pub paid_at: Option<String>,
+    #[serde(rename = "releasedAt")]
+    pub released_at: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -95,13 +96,12 @@ pub struct ChatMessage {
     pub id: String,
     #[serde(rename = "orderId")]
     pub order_id: String,
-    #[serde(rename = "senderId")]
-    pub sender_id: String,
+    #[serde(rename = "userId")]
+    pub user_id: String,
     pub content: String,
+    pub timestamp: String,
     #[serde(rename = "messageType")]
-    pub message_type: String, // TEXT, IMAGE, SYSTEM
-    #[serde(rename = "createdAt")]
-    pub created_at: DateTime<Utc>,
+    pub message_type: String, // "text", "image", "system"
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -159,8 +159,5 @@ pub struct OrdersResponse {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct OrderChat {
     pub order_id: String,
-    pub order_status: String,
-    pub buyer_id: String,
-    pub seller_id: String,
     pub messages: Vec<ChatMessage>,
 }
