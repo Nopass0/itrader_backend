@@ -1,0 +1,311 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  DATABASE_URL: postgresql://postgres:postgres@localhost/itrader_test
+
+jobs:
+  check:
+    name: Check & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: rustfmt, clippy
+          
+      - name: Check formatting
+        run: cargo fmt -- --check
+        
+      - name: Run clippy
+        run: cargo clippy -- -D warnings
+        
+      - name: Check compilation
+        run: cargo check --all-features
+
+  test-safe:
+    name: Safe Tests
+    runs-on: ubuntu-latest
+    needs: check
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: itrader_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+          
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          cache: true
+          
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libssl-dev \
+            pkg-config \
+            libpq-dev \
+            tesseract-ocr \
+            tesseract-ocr-rus \
+            poppler-utils
+            
+      - name: Setup Python for PyO3
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          
+      - name: Create test accounts configuration
+        run: |
+          mkdir -p data
+          cat > data/accounts.json << 'EOF'
+          {
+            "gate_accounts": [],
+            "bybit_accounts": [],
+            "last_updated": "2025-01-01T00:00:00Z"
+          }
+          EOF
+          
+      - name: Setup test environment
+        run: |
+          cat > .env.test << EOF
+          DATABASE_URL=postgresql://postgres:postgres@localhost/itrader_test
+          REDIS_URL=redis://localhost:6379
+          JWT_SECRET=test-secret-key
+          RUST_LOG=info
+          EOF
+          
+      - name: Run database migrations
+        run: |
+          cargo install sqlx-cli --no-default-features --features postgres
+          sqlx migrate run
+          
+      - name: Run safe tests
+        run: ./test.sh safe
+        
+      - name: Run unit tests
+        run: cargo test --lib -- --nocapture
+        
+      - name: Test orchestrator mock
+        run: cargo test test_orchestrator_mock -- --nocapture
+
+  test-integration:
+    name: Integration Tests (with secrets)
+    runs-on: ubuntu-latest
+    needs: test-safe
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: itrader_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+          
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          cache: true
+          
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libssl-dev \
+            pkg-config \
+            libpq-dev \
+            tesseract-ocr \
+            tesseract-ocr-rus \
+            poppler-utils
+            
+      - name: Setup Python for PyO3
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          
+      - name: Create accounts from secrets
+        env:
+          GATE_ACCOUNTS: ${{ secrets.GATE_ACCOUNTS }}
+          BYBIT_ACCOUNTS: ${{ secrets.BYBIT_ACCOUNTS }}
+        run: |
+          mkdir -p data
+          python3 << 'EOF'
+          import json
+          import os
+          from datetime import datetime
+          
+          # Parse Gate accounts (format: login:password,login:password)
+          gate_accounts = []
+          if os.environ.get('GATE_ACCOUNTS'):
+              for i, account in enumerate(os.environ['GATE_ACCOUNTS'].split(',')):
+                  if ':' in account:
+                      login, password = account.strip().split(':', 1)
+                      gate_accounts.append({
+                          "id": i + 1,
+                          "email": login,
+                          "password": password,
+                          "balance": 10000000.0,
+                          "status": "active",
+                          "created_at": datetime.utcnow().isoformat() + "Z",
+                          "updated_at": datetime.utcnow().isoformat() + "Z"
+                      })
+          
+          # Parse Bybit accounts (format: api_key:api_secret,api_key:api_secret)
+          bybit_accounts = []
+          if os.environ.get('BYBIT_ACCOUNTS'):
+              for i, account in enumerate(os.environ['BYBIT_ACCOUNTS'].split(',')):
+                  if ':' in account:
+                      api_key, api_secret = account.strip().split(':', 1)
+                      bybit_accounts.append({
+                          "id": i + 1,
+                          "account_name": f"account_{i+1}",
+                          "api_key": api_key,
+                          "api_secret": api_secret,
+                          "active_ads": 0,
+                          "status": "available",
+                          "created_at": datetime.utcnow().isoformat() + "Z",
+                          "updated_at": datetime.utcnow().isoformat() + "Z"
+                      })
+          
+          # Write accounts.json
+          accounts_data = {
+              "gate_accounts": gate_accounts,
+              "bybit_accounts": bybit_accounts,
+              "last_updated": datetime.utcnow().isoformat() + "Z"
+          }
+          
+          with open('data/accounts.json', 'w') as f:
+              json.dump(accounts_data, f, indent=2)
+          
+          print(f"Created {len(gate_accounts)} Gate accounts and {len(bybit_accounts)} Bybit accounts")
+          EOF
+          
+      - name: Setup test environment
+        run: |
+          cat > .env << EOF
+          DATABASE_URL=postgresql://postgres:postgres@localhost/itrader_test
+          REDIS_URL=redis://localhost:6379
+          JWT_SECRET=${{ secrets.JWT_SECRET || 'test-secret-key' }}
+          OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY || 'test-key' }}
+          RUST_LOG=info
+          EOF
+          
+      - name: Run database migrations
+        run: |
+          cargo install sqlx-cli --no-default-features --features postgres
+          sqlx migrate run
+          
+      - name: Run integration tests
+        run: |
+          # Only run if we have credentials
+          if [ -n "${{ secrets.GATE_ACCOUNTS }}" ]; then
+            echo "Running Gate.io integration tests..."
+            ./test.sh gate-auth || true
+            ./test.sh gate-get-tx || true
+          fi
+          
+          if [ -n "${{ secrets.BYBIT_ACCOUNTS }}" ]; then
+            echo "Running Bybit integration tests..."
+            ./test.sh bybit-auth --testnet || true
+            ./test.sh bybit-get-ads --testnet || true
+          fi
+
+  build:
+    name: Build Release
+    runs-on: ubuntu-latest
+    needs: test-safe
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          cache: true
+          
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libssl-dev \
+            pkg-config \
+            libpq-dev
+            
+      - name: Build release binary
+        run: cargo build --release
+        
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: itrader-backend
+          path: target/release/itrader-backend
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run security audit
+        uses: actions-rs/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
