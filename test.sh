@@ -10,22 +10,23 @@ export LD_LIBRARY_PATH="/home/user/.local/share/uv/python/cpython-3.11.12-linux-
 SAFE_ONLY=false
 USE_TESTNET=false
 VERBOSE=false
+ARGS=()
 
 for arg in "$@"; do
     case $arg in
         --safe)
             SAFE_ONLY=true
             echo "🛡️  Running SAFE tests only (no data modification)"
-            shift
             ;;
         --testnet)
             USE_TESTNET=true
             echo "🌐 Using Bybit testnet environment"
-            shift
             ;;
         --verbose)
             VERBOSE=true
-            shift
+            ;;
+        *)
+            ARGS+=("$arg")
             ;;
     esac
 done
@@ -237,7 +238,7 @@ run_test() {
 }
 
 # Main test execution
-TEST_ARG=${1:-help}
+TEST_ARG=${ARGS[0]:-help}
 
 case "$TEST_ARG" in
     all)
@@ -308,12 +309,14 @@ case "$TEST_ARG" in
         ;;
         
     help|*)
-        if [[ ! " ${!TEST_CATEGORIES[@]} " =~ " ${TEST_ARG} " ]] && [ "$TEST_ARG" != "help" ]; then
-            # Try to run specific test if it exists
-            if [ -n "${TEST_CATEGORIES[$TEST_ARG]}" ]; then
-                run_test "$TEST_ARG" "${@:2}"
-                exit 0
-            fi
+        # Check if it's a valid test name
+        if [ -n "${TEST_CATEGORIES[$TEST_ARG]}" ]; then
+            run_test "$TEST_ARG" "${ARGS[@]:1}"
+            exit 0
+        fi
+        
+        # If not help and not a valid test, show error
+        if [ "$TEST_ARG" != "help" ]; then
             echo "❌ Unknown test: $TEST_ARG"
             echo
         fi
